@@ -1,4 +1,4 @@
-package cc.gnaixx.tools.model;
+package cc.gnaixx.tools.model.dex;
 
 /**
  * 名称: ClassDefs
