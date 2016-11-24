@@ -7,6 +7,8 @@ import cc.gnaixx.tools.tools.Encrypt;
 import cc.gnaixx.tools.tools.Reader;
 
 import static cc.gnaixx.tools.model.DexCon.DEF_INT;
+import static cc.gnaixx.tools.model.DexCon.MAGIC_LEN;
+import static cc.gnaixx.tools.model.DexCon.SIGNATURE_LEN;
 
 /**
  * 名称: header
@@ -17,12 +19,10 @@ import static cc.gnaixx.tools.model.DexCon.DEF_INT;
  */
 
 public class Header {
-    public static final int MAGIC_LEN       = 8;
-    public static final int SIGNATURE_LEN   = 20;
 
-    byte[]  magic           = new byte[8];
+    byte[]  magic           = new byte[MAGIC_LEN];
     int     checksum        = DEF_INT;
-    byte[]  signature       = new byte[20];
+    byte[]  signature       = new byte[SIGNATURE_LEN];
     int     fileSize        = DEF_INT;
     int     headerSize      = DEF_INT;
     int     endianTag       = DEF_INT;
@@ -46,30 +46,30 @@ public class Header {
 
 
     public Header(byte[] dexHeader) {
-        Reader reader = new Reader(0);
-        this.magic = reader.subdex(dexHeader, MAGIC_LEN);
-        this.checksum = reader.getUint(dexHeader);
-        this.signature = reader.subdex(dexHeader,SIGNATURE_LEN);
-        this.fileSize = reader.getUint(dexHeader);
-        this.headerSize = reader.getUint(dexHeader);
-        this.endianTag = reader.getUint(dexHeader);
-        this.linkSize = reader.getUint(dexHeader);
-        this.linkOff = reader.getUint(dexHeader);
-        this.mapOff = reader.getUint(dexHeader);
-        this.stringIdsSize = reader.getUint(dexHeader);
-        this.stringIdsOff = reader.getUint(dexHeader);
-        this.typeIdsSize = reader.getUint(dexHeader);
-        this.typeIdsOff = reader.getUint(dexHeader);
-        this.protoIdsSize = reader.getUint(dexHeader);
-        this.protoIdsOff = reader.getUint(dexHeader);
-        this.fieldIdsSize = reader.getUint(dexHeader);
-        this.fieldIdsOff = reader.getUint(dexHeader);
-        this.methodIdsSize = reader.getUint(dexHeader);
-        this.methodIdsOff = reader.getUint(dexHeader);
-        this.classDefsSize = reader.getUint(dexHeader);
-        this.classDefsOff = reader.getUint(dexHeader);
-        this.dataSize = reader.getUint(dexHeader);
-        this.dataOff = reader.getUint(dexHeader);
+        Reader reader = new Reader(dexHeader, 0);
+        this.magic = reader.subdex(MAGIC_LEN);
+        this.checksum = reader.getUint();
+        this.signature = reader.subdex(SIGNATURE_LEN);
+        this.fileSize = reader.getUint();
+        this.headerSize = reader.getUint();
+        this.endianTag = reader.getUint();
+        this.linkSize = reader.getUint();
+        this.linkOff = reader.getUint();
+        this.mapOff = reader.getUint();
+        this.stringIdsSize = reader.getUint();
+        this.stringIdsOff = reader.getUint();
+        this.typeIdsSize = reader.getUint();
+        this.typeIdsOff = reader.getUint();
+        this.protoIdsSize = reader.getUint();
+        this.protoIdsOff = reader.getUint();
+        this.fieldIdsSize = reader.getUint();
+        this.fieldIdsOff = reader.getUint();
+        this.methodIdsSize = reader.getUint();
+        this.methodIdsOff = reader.getUint();
+        this.classDefsSize = reader.getUint();
+        this.classDefsOff = reader.getUint();
+        this.dataSize = reader.getUint();
+        this.dataOff = reader.getUint();
     }
 
     public JSONObject toJson(){

@@ -57,20 +57,20 @@ public class ProtoIds {
 
     public ProtoIds(byte[] dexbs, int off, int size) {
         this.protoIds = new ProtoId[size];
-        Reader reader = new Reader(off);
+        Reader reader = new Reader(dexbs, off);
 
         for (int i = 0; i < size; i++) {
-            int shortyIdx = reader.getUint(dexbs);
-            int returnTypeIdx = reader.getUint(dexbs);
-            int parametersOff = reader.getUint(dexbs);
+            int shortyIdx = reader.getUint();
+            int returnTypeIdx = reader.getUint();
+            int parametersOff = reader.getUint();
 
             ProtoId protoId;
             if (parametersOff != 0) {
-                Reader reader1 = new Reader(parametersOff);
-                int paramSize = reader1.getUint(dexbs);
+                Reader reader1 = new Reader(dexbs, parametersOff);
+                int paramSize = reader1.getUint();
                 char paramTypes[] = new char[paramSize];
                 for (int j = 0; j < paramSize; j++) {
-                    paramTypes[j] = reader1.getUshort(dexbs);
+                    paramTypes[j] = reader1.getUshort();
                 }
                 protoId = new ProtoId(shortyIdx, returnTypeIdx, parametersOff, paramSize, paramTypes);
             } else {

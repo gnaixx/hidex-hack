@@ -30,12 +30,12 @@ public class MethodIds {
 
     public MethodIds(byte[] dexbs, int off, int size) {
         methodIds = new MethodId[size];
+        Reader reader = new Reader(dexbs, off);
 
-        Reader reader = new Reader(off);
         for (int i = 0; i < size; i++) {
-            char classIdx = reader.getUshort(dexbs);
-            char protoIdx = reader.getUshort(dexbs);
-            int nameidx = reader.getUint(dexbs);
+            char classIdx = reader.getUshort();
+            char protoIdx = reader.getUshort();
+            int nameidx = reader.getUint();
             MethodId methodId = new MethodId(classIdx, protoIdx, nameidx);
             methodIds[i] = methodId;
         }
@@ -55,5 +55,4 @@ public class MethodIds {
         }
         return jsonIds;
     }
-
 }

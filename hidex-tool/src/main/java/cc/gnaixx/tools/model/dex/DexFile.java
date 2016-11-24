@@ -4,7 +4,9 @@ package cc.gnaixx.tools.model.dex;
 
 import com.alibaba.fastjson.JSONObject;
 
-import static cc.gnaixx.tools.tools.Reader.subdex;
+import cc.gnaixx.tools.model.dex.cladef.ClassDefs;
+
+import static cc.gnaixx.tools.tools.StreamUtil.subdex;
 
 
 /**
@@ -17,12 +19,14 @@ import static cc.gnaixx.tools.tools.Reader.subdex;
 public class DexFile {
     public static final int HEADER_LEN = 0x70;
 
-    private Header header;
-    private StringIds stringIds;
-    private TypeIds typeIds;
-    private ProtoIds protoIds;
-    private FieldIds fieldIds;
-    private MethodIds methodIds;
+    public Header header;
+    public StringIds stringIds;
+    public TypeIds typeIds;
+    public ProtoIds protoIds;
+    public FieldIds fieldIds;
+    public MethodIds methodIds;
+    public ClassDefs classDefs;
+    public MapList mapList;
 
     public DexFile(){
 
@@ -49,6 +53,12 @@ public class DexFile {
 
         //read method_ids
         methodIds = new MethodIds(dexbs, header.methodIdsOff, header.methodIdsSize);
+
+        //read class_defs
+        classDefs = new ClassDefs(dexbs, header.classDefsOff, header.classDefsSize);
+
+        //read map_list
+        mapList = new MapList(dexbs, header.mapOff);
     }
 
     public void write(){
@@ -58,12 +68,13 @@ public class DexFile {
     public String toJsonStr(){
         JSONObject jsonDex = new JSONObject();
         jsonDex.put("header", header.toJson());
-        jsonDex.put("string_ids", stringIds.toJson());
-        jsonDex.put("type_ids", typeIds.toJson());
-        jsonDex.put("proto_ids", protoIds.toJson());
-        jsonDex.put("field_ids", fieldIds.toJson());
-        jsonDex.put("method_ids", methodIds.toJson());
-
+        //jsonDex.put("string_ids", stringIds.toJson());
+        //jsonDex.put("type_ids", typeIds.toJson());
+        //jsonDex.put("proto_ids", protoIds.toJson());
+        //jsonDex.put("field_ids", fieldIds.toJson(this));
+        //jsonDex.put("method_ids", methodIds.toJson());
+        jsonDex.put("class_def", classDefs.toJson(this));
+        //jsonDex.put("map_list", mapList.toJson());
         return jsonDex.toJSONString();
     }
 }

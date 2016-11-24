@@ -13,38 +13,41 @@ import cc.gnaixx.tools.model.Uleb128;
 public class Reader {
     public static final int UINT_LEN        = 4;
     public static final int USHORT_LEN      = 2;
-
+    
+    private byte[] stream;
     private int offset = 0;
+    
+    public Reader(byte[] stream, int off){
+        this.stream =stream;
+        this.offset = off;
+    }
+
+    public void setStream(byte[] stream){
+        this.stream = stream;
+    }
 
     public void setOff(int off){
         offset = off;
     }
 
-    public Reader(int off){
+    public void reset(byte[] stream, int off){
+        this.stream = stream;
         this.offset = off;
     }
 
-    public byte[] subdex(byte[] data, int len) {
+    public byte[] subdex(int len) {
         byte[] sub = new byte[len];
         for (int i = 0; i < len; i++) {
-            sub[i] = data[i + offset];
+            sub[i] = stream[i + offset];
         }
         offset += len;
         return sub;
     }
 
-    public static byte[] subdex(byte[] data, int off, int len) {
-        byte[] sub = new byte[len];
-        for (int i = 0; i < len; i++) {
-            sub[i] = data[i + off];
-        }
-        return sub;
-    }
-
-    public int getUint(byte[] data) {
+    public int getUint() {
         int value = 0;
         for (int i = 0; i < UINT_LEN; i++) {
-            int seg = data[offset + i];
+            int seg = stream[offset + i];
             if (seg < 0) {
                 seg = 256 + seg;
             }
@@ -54,10 +57,10 @@ public class Reader {
         return value;
     }
 
-    public char getUshort(byte[] data) {
+    public char getUshort() {
         char value = 0;
         for (int i = 0; i < USHORT_LEN; i++) {
-            int seg = data[offset + i];
+            int seg = stream[offset + i];
             if (seg < 0) {
                 seg = 256 + seg;
             }
@@ -67,41 +70,23 @@ public class Reader {
         return value;
     }
 
-    public Uleb128 getUleb128(byte[] data) {
+    public Uleb128 getUleb128() {
         int value = 0;
         int count = 0;
         byte realVal[] = new byte[4];
         boolean flag = false;
         do {
-            byte seg = data[offset];
+            byte seg = stream[offset];
             if ((seg >> 7) == 1) {
                 flag = true;
             }
-            seg = data[offset];
+            seg = stream[offset];
             value += ((seg << 1) >> 1) << (7 * count);
-            realVal[count] = data[offset];
+            realVal[count] = stream[offset];
             count++;
             offset++;
         } while (flag);
         return new Uleb128(realVal, value);
     }
 
-    public static Uleb128 getUleb128(byte[] data, int off){
-        int value = 0;
-        int count = 0;
-        byte realVal[] = new byte[4];
-        boolean flag = false;
-        do {
-            byte seg = data[off];
-            if ((seg >> 7) == 1) {
-                flag = true;
-            }
-            seg = data[off];
-            value += ((seg << 1) >> 1) << (7 * count);
-            realVal[count] = data[off];
-            count++;
-            off++;
-        } while (flag);
-        return new Uleb128(realVal, value);
-    }
 }

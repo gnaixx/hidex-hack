@@ -7,6 +7,8 @@ import cc.gnaixx.tools.model.Uleb128;
 import cc.gnaixx.tools.tools.Reader;
 
 import static cc.gnaixx.tools.model.DexCon.DEF_INT;
+import static cc.gnaixx.tools.tools.StreamUtil.getUleb128;
+import static cc.gnaixx.tools.tools.StreamUtil.subdex;
 
 /**
  * 名称: StringIds
@@ -19,9 +21,9 @@ import static cc.gnaixx.tools.model.DexCon.DEF_INT;
 public class StringIds {
 
     class StringId {
-        int     dataOff = DEF_INT;  //字符串偏移位置
-        Uleb128 utf16Size;          //字符串长度
-        byte    data[];             //字符串数据
+        int dataOff = DEF_INT;  //字符串偏移位置
+        Uleb128 utf16Size;      //字符串长度
+        byte data[];            //字符串数据
 
         public StringId(int dataOff, Uleb128 uleb128, byte[] data) {
             this.dataOff = dataOff;
@@ -35,23 +37,23 @@ public class StringIds {
     public StringIds(byte[] dexbs, int off, int size) {
         this.stringIds = new StringId[size];
 
-        Reader reader = new Reader(off);
+        Reader reader = new Reader(dexbs, off);
         for (int i = 0; i < size; i++) {
-            int dataOff = reader.getUint(dexbs);
-            Uleb128 utf16Size = Reader.getUleb128(dexbs, dataOff);
-            byte[] data = Reader.subdex(dexbs, dataOff + 1, utf16Size.getVal());
+            int dataOff = reader.getUint();
+            Uleb128 utf16Size = getUleb128(dexbs, dataOff);
+            byte[] data = subdex(dexbs, dataOff + 1, utf16Size.getVal());
             StringId stringId = new StringId(dataOff, utf16Size, data);
             stringIds[i] = stringId;
         }
     }
 
-    public byte[] getData(int id){
-        return stringIds[id].data;
+    public String getData(int id) {
+        return "(" + id + ")" + new String(stringIds[id].data);
     }
 
     public JSONArray toJson() {
         JSONArray jsonIds = new JSONArray();
-        for (int i=0; i<stringIds.length; i++) {
+        for (int i = 0; i < stringIds.length; i++) {
             StringId stringId = stringIds[i];
             JSONObject jsonData = new JSONObject();
             jsonData.put("utf16_size", stringId.utf16Size.getVal());

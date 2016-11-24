@@ -10,7 +10,11 @@ package cc.gnaixx.tools.tools;
 
 public class Log {
 
-    public static void log(Object msg) {
+    public static void log(String tag, Object msg) {
+        System.out.println(String.format("%-15s ---> %s", tag, msg));
+    }
+
+    public static void log(Object msg){
         System.out.println(msg);
     }
 }

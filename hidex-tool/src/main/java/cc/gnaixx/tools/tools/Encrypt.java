@@ -1,11 +1,8 @@
 package cc.gnaixx.tools.tools;
 
-
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.zip.Adler32;
-
-import static cc.gnaixx.tools.tools.Log.log;
 
 /**
  * 名称: Encrypt
@@ -17,30 +14,26 @@ import static cc.gnaixx.tools.tools.Log.log;
 
 public class Encrypt {
     //计算checksum
-    public static long checksum(byte[] data, int off, int len) {
+    public static byte[] checksum(byte[] data, int off) {
+        int len = data.length - off;
         Adler32 adler32 = new Adler32();
         adler32.reset();
         adler32.update(data, off, len);
         long checksum = adler32.getValue();
-
-        data[8] = (byte) checksum;
-        data[9] = (byte) (checksum >> 8);
-        data[10] = (byte) (checksum >> 16);
-        data[11] = (byte) (checksum >> 24);
-
-        log("checksum -> " + Long.toHexString(checksum));
-        return checksum;
+        byte[] checksumbs = new byte[]{
+                (byte) checksum,
+                (byte) (checksum >> 8),
+                (byte) (checksum >> 16),
+                (byte) (checksum >> 24)};
+        return checksumbs;
     }
 
 
     //计算signature
-    public static byte[] signature(byte[] data, int off, int len) {
-        byte[] sinature = SHA1(data, off, len);
-        for (int i = 0; i < sinature.length; i++) {
-            data[i + 12] = sinature[i];
-        }
-        log("signature -> " + binToHex(sinature));
-        return sinature;
+    public static byte[] signature(byte[] data, int off) {
+        int len = data.length - off;
+        byte[] signature = SHA1(data, off, len);
+        return signature;
     }
 
     //sha1算法
@@ -62,6 +55,21 @@ public class Encrypt {
         StringBuffer hexString = new StringBuffer();
         // 字节数组转换为 十六进制 数
         for (int i = 0; i < data.length; i++) {
+            String shaHex = Integer.toHexString(data[i] & 0xFF);
+            if (shaHex.length() < 2) {
+                hexString.append(0);
+            }
+            hexString.append(shaHex);
+        }
+        return hexString.toString().toUpperCase();
+    }
+
+    //二进制转16进制
+    public static String binToHex_Lit(byte[] data) {
+        // Create Hex String
+        StringBuffer hexString = new StringBuffer();
+        // 字节数组转换为 十六进制 数
+        for (int i = data.length - 1; i >= 0; i--) {
             String shaHex = Integer.toHexString(data[i] & 0xFF);
             if (shaHex.length() < 2) {
                 hexString.append(0);

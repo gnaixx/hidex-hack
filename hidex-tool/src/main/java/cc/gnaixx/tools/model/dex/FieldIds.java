@@ -31,26 +31,26 @@ public class FieldIds {
     public FieldIds(byte[] dexbs, int off, int size) {
         fieldIds = new FieldId[size];
 
-        Reader reader = new Reader(off);
+        Reader reader = new Reader(dexbs, off);
         for (int i = 0; i < size; i++) {
-            char classIdx = reader.getUshort(dexbs);
-            char typeIdx = reader.getUshort(dexbs);
-            int nameidx = reader.getUint(dexbs);
+            char classIdx = reader.getUshort();
+            char typeIdx = reader.getUshort();
+            int nameidx = reader.getUint();
             FieldId fieldId = new FieldId(classIdx, typeIdx, nameidx);
             fieldIds[i] = fieldId;
         }
     }
 
 
-    public JSONArray toJson(){
+    public JSONArray toJson(DexFile dexFile){
         JSONArray jsonIds = new JSONArray();
 
         for(int i = 0; i< fieldIds.length; i++){
             FieldId fieldId = fieldIds[i];
             JSONObject jsonItem = new JSONObject();
-            jsonItem.put("class_idx", (int)fieldId.classIdx);
-            jsonItem.put("type_idx", (int)fieldId.typeIdx);
-            jsonItem.put("name_idx", fieldId.nameIdx);
+            jsonItem.put("class_idx", dexFile.typeIds.getString(dexFile, (int)fieldId.classIdx));
+            jsonItem.put("type_idx", dexFile.typeIds.getString(dexFile, (int)fieldId.typeIdx));
+            jsonItem.put("name_idx", dexFile.stringIds.getData(fieldId.nameIdx));
             jsonIds.add(i, jsonItem);
         }
         return jsonIds;

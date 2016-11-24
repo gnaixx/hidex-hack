@@ -3,7 +3,7 @@
 #build jar
 ./gradlew -a -p hidex-samp assembleRelease
 
-rm samp.*
+rm ./output/samp.*
 #cp jar
 cp ./hidex-samp/build/intermediates/bundles/release/classes.jar ./output/samp.jar
 cd ./output/
