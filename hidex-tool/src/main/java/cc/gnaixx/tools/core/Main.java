@@ -2,56 +2,40 @@ package cc.gnaixx.tools.core;
 
 
 import java.io.File;
+import java.util.List;
+import java.util.Map;
 
-import cc.gnaixx.tools.model.dex.DexFile;
 import cc.gnaixx.tools.tools.FileUtil;
 
-import static cc.gnaixx.tools.model.DexCon.CHECKSUM_LEN;
-import static cc.gnaixx.tools.model.DexCon.CHECKSUM_OFF;
-import static cc.gnaixx.tools.model.DexCon.SIGNATURE_LEN;
-import static cc.gnaixx.tools.model.DexCon.SIGNATURE_OFF;
-import static cc.gnaixx.tools.tools.Encrypt.binToHex;
-import static cc.gnaixx.tools.tools.Encrypt.binToHex_Lit;
-import static cc.gnaixx.tools.tools.Encrypt.signature;
-import static cc.gnaixx.tools.tools.Encrypt.checksum;
-import static cc.gnaixx.tools.tools.Log.log;
-import static cc.gnaixx.tools.tools.StreamUtil.replace;
-
 public class Main {
-    private static final String DEX_NAME = "samp.dex";
-    private static final String HIDEX_NAME = "hidex.dex";
-    private static final String OUTPUT_DIR = "output";
+    private static final String DEX_NAME    = "samp.dex";
+    private static final String HIDEX_NAME  = "hidex.dex";
+    private static final String CONFIG_NAME = "hidex.conf";
+    private static final String OUTPUT_DIR  = "output";
+
     private static String userDir;
     private static String inputFile;
     private static String outputFile;
+    private static String configFile;
 
     static {
         userDir = System.getProperty("user.dir");
-        inputFile = userDir + File.separator + OUTPUT_DIR + File.separator + DEX_NAME;
+        inputFile  = userDir + File.separator + OUTPUT_DIR + File.separator + DEX_NAME;
         outputFile = userDir + File.separator + OUTPUT_DIR + File.separator + HIDEX_NAME;
+        configFile = userDir + File.separator + OUTPUT_DIR + File.separator + CONFIG_NAME;
     }
 
 
     public static void main(String[] args) {
         //input
-        byte[] dexbs = FileUtil.read(inputFile);
-        int dexLen = dexbs.length;
+        byte[] dexBuff = FileUtil.read(inputFile);
+        Map<String, List<String>> config = FileUtil.readConfig(configFile);
 
-        DexFile dexFile = new DexFile();
-        dexFile.read(dexbs);
-        log(dexFile.toJsonStr());
-        log("dex_len", dexLen);
-
-        //修复校验
-        byte[] signature = signature(dexbs, SIGNATURE_LEN + SIGNATURE_OFF);
-        replace(dexbs, signature, SIGNATURE_OFF, SIGNATURE_LEN);
-        byte[] checksum = checksum(dexbs, CHECKSUM_LEN + CHECKSUM_OFF);
-        replace(dexbs, checksum, CHECKSUM_OFF, CHECKSUM_LEN);
-        log("signature", binToHex(signature));
-        log("checksum", binToHex_Lit(checksum));
+        //hide dex
+        Handle handle = new Handle(dexBuff, config);
+        dexBuff = handle.hidex();
 
         //output
-        //FileUtil.write(outputFile, dexbs);
+        FileUtil.write(outputFile, dexBuff);
     }
-
 }

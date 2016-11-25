@@ -58,16 +58,16 @@ public class MapList {
     int mapSize;
     MapItem mapItems[];
 
-    public MapList(byte[] dexbs, int off) {
-        Reader reader = new Reader(dexbs, off);
-        mapSize = reader.getUint();
+    public MapList(byte[] dexBuff, int off) {
+        Reader reader = new Reader(dexBuff, off);
+        mapSize = reader.readUint();
         mapItems = new MapItem[mapSize];
 
         for (int i = 0; i < mapSize; i++) {
-            char type = reader.getUshort();
-            char unused = reader.getUshort();
-            int size = reader.getUint();
-            int offset = reader.getUint();
+            char type = reader.readUshort();
+            char unused = reader.readUshort();
+            int size = reader.readUint();
+            int offset = reader.readUint();
 
             MapItem item = new MapItem(type, unused, size, offset);
             mapItems[i] = item;

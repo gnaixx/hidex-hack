@@ -28,14 +28,14 @@ public class FieldIds {
 
     FieldId fieldIds[];
 
-    public FieldIds(byte[] dexbs, int off, int size) {
+    public FieldIds(byte[] dexBuff, int off, int size) {
         fieldIds = new FieldId[size];
 
-        Reader reader = new Reader(dexbs, off);
+        Reader reader = new Reader(dexBuff, off);
         for (int i = 0; i < size; i++) {
-            char classIdx = reader.getUshort();
-            char typeIdx = reader.getUshort();
-            int nameidx = reader.getUint();
+            char classIdx = reader.readUshort();
+            char typeIdx = reader.readUshort();
+            int nameidx = reader.readUint();
             FieldId fieldId = new FieldId(classIdx, typeIdx, nameidx);
             fieldIds[i] = fieldId;
         }

@@ -34,31 +34,31 @@ public class DexFile {
 
 
     //reader dex
-    public void read(byte[] dexbs){
+    public void read(byte[] dexBuff){
         //read header
-        byte[] headerbs = subdex(dexbs, 0, HEADER_LEN);
+        byte[] headerbs = subdex(dexBuff, 0, HEADER_LEN);
         header = new Header(headerbs);
 
         //read string_ids
-        stringIds = new StringIds(dexbs, header.stringIdsOff, header.stringIdsSize);
+        stringIds = new StringIds(dexBuff, header.stringIdsOff, header.stringIdsSize);
 
         //read type_ids
-        typeIds = new TypeIds(dexbs, header.typeIdsOff, header.typeIdsSize);
+        typeIds = new TypeIds(dexBuff, header.typeIdsOff, header.typeIdsSize);
 
         //read proto_ids
-        protoIds = new ProtoIds(dexbs, header.protoIdsOff, header.protoIdsSize);
+        protoIds = new ProtoIds(dexBuff, header.protoIdsOff, header.protoIdsSize);
 
         //read field_ids
-        fieldIds = new FieldIds(dexbs, header.fieldIdsOff, header.fieldIdsSize);
+        fieldIds = new FieldIds(dexBuff, header.fieldIdsOff, header.fieldIdsSize);
 
         //read method_ids
-        methodIds = new MethodIds(dexbs, header.methodIdsOff, header.methodIdsSize);
+        methodIds = new MethodIds(dexBuff, header.methodIdsOff, header.methodIdsSize);
 
         //read class_defs
-        classDefs = new ClassDefs(dexbs, header.classDefsOff, header.classDefsSize);
+        classDefs = new ClassDefs(dexBuff, header.classDefsOff, header.classDefsSize);
 
         //read map_list
-        mapList = new MapList(dexbs, header.mapOff);
+        mapList = new MapList(dexBuff, header.mapOff);
     }
 
     public void write(){

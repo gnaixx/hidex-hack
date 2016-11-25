@@ -24,12 +24,12 @@ public class TypeIds {
 
     TypeId typeIds[];
 
-    public TypeIds(byte[] dexbs, int off, int size) {
+    public TypeIds(byte[] dexBuff, int off, int size) {
         this.typeIds = new TypeId[size];
 
-        Reader reader = new Reader(dexbs, off);
+        Reader reader = new Reader(dexBuff, off);
         for (int i = 0; i < size; i++) {
-            int idx = reader.getUint();
+            int idx = reader.readUint();
             TypeId typeId = new TypeId(idx);
             typeIds[i] = typeId;
         }
@@ -37,7 +37,8 @@ public class TypeIds {
 
     public String getString(DexFile dexFile, int id) {
         String data = dexFile.stringIds.getData(typeIds[id].descriptorIdx);
-        return "(" + id + ")" + data;
+        //return "(" + id + ")" + data;
+        return data;
     }
 
     public JSONArray toJson() {

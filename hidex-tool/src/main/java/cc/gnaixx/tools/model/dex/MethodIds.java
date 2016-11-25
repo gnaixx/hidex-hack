@@ -28,14 +28,14 @@ public class MethodIds {
 
     MethodId methodIds[];
 
-    public MethodIds(byte[] dexbs, int off, int size) {
+    public MethodIds(byte[] dexBuff, int off, int size) {
         methodIds = new MethodId[size];
-        Reader reader = new Reader(dexbs, off);
+        Reader reader = new Reader(dexBuff, off);
 
         for (int i = 0; i < size; i++) {
-            char classIdx = reader.getUshort();
-            char protoIdx = reader.getUshort();
-            int nameidx = reader.getUint();
+            char classIdx = reader.readUshort();
+            char protoIdx = reader.readUshort();
+            int nameidx = reader.readUint();
             MethodId methodId = new MethodId(classIdx, protoIdx, nameidx);
             methodIds[i] = methodId;
         }

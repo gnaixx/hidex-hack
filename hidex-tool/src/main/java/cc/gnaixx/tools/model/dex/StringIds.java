@@ -6,7 +6,6 @@ import com.alibaba.fastjson.JSONObject;
 import cc.gnaixx.tools.model.Uleb128;
 import cc.gnaixx.tools.tools.Reader;
 
-import static cc.gnaixx.tools.model.DexCon.DEF_INT;
 import static cc.gnaixx.tools.tools.StreamUtil.getUleb128;
 import static cc.gnaixx.tools.tools.StreamUtil.subdex;
 
@@ -21,7 +20,7 @@ import static cc.gnaixx.tools.tools.StreamUtil.subdex;
 public class StringIds {
 
     class StringId {
-        int dataOff = DEF_INT;  //字符串偏移位置
+        int dataOff;            //字符串偏移位置
         Uleb128 utf16Size;      //字符串长度
         byte data[];            //字符串数据
 
@@ -34,21 +33,22 @@ public class StringIds {
 
     StringId stringIds[];
 
-    public StringIds(byte[] dexbs, int off, int size) {
+    public StringIds(byte[] dexBuff, int off, int size) {
         this.stringIds = new StringId[size];
 
-        Reader reader = new Reader(dexbs, off);
+        Reader reader = new Reader(dexBuff, off);
         for (int i = 0; i < size; i++) {
-            int dataOff = reader.getUint();
-            Uleb128 utf16Size = getUleb128(dexbs, dataOff);
-            byte[] data = subdex(dexbs, dataOff + 1, utf16Size.getVal());
+            int dataOff = reader.readUint();
+            Uleb128 utf16Size = getUleb128(dexBuff, dataOff);
+            byte[] data = subdex(dexBuff, dataOff + 1, utf16Size.getVal());
             StringId stringId = new StringId(dataOff, utf16Size, data);
             stringIds[i] = stringId;
         }
     }
 
     public String getData(int id) {
-        return "(" + id + ")" + new String(stringIds[id].data);
+        //return "(" + id + ")" + new String(stringIds[id].data);
+        return new String(stringIds[id].data);
     }
 
     public JSONArray toJson() {

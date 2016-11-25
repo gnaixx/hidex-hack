@@ -18,11 +18,14 @@ public class Uleb128 {
     }
 
     public int getSize(){
-        return realVal.length;
+        return this.realVal.length;
     }
 
     public int getVal(){
-        return val;
+        return this.val;
     }
 
+    public byte[] getRealVal(){
+        return this.realVal;
+    }
 }

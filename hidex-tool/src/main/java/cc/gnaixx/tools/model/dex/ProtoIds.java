@@ -3,8 +3,9 @@ package cc.gnaixx.tools.model.dex;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
-import cc.gnaixx.tools.tools.Encrypt;
 import cc.gnaixx.tools.tools.Reader;
+
+import static cc.gnaixx.tools.tools.Trans.charToInt;
 
 /**
  * 名称: ProtoIds
@@ -28,7 +29,7 @@ public class ProtoIds {
             public JSONObject toJson(){
                 JSONObject jsonParam = new JSONObject();
                 jsonParam.put("size", this.size);
-                jsonParam.put("list", Encrypt.charToInt(this.typeIdxs));
+                jsonParam.put("list", charToInt(this.typeIdxs));
                 return jsonParam;
             }
         }
@@ -55,22 +56,22 @@ public class ProtoIds {
 
     ProtoId protoIds[];
 
-    public ProtoIds(byte[] dexbs, int off, int size) {
+    public ProtoIds(byte[] dexBuff, int off, int size) {
         this.protoIds = new ProtoId[size];
-        Reader reader = new Reader(dexbs, off);
+        Reader reader = new Reader(dexBuff, off);
 
         for (int i = 0; i < size; i++) {
-            int shortyIdx = reader.getUint();
-            int returnTypeIdx = reader.getUint();
-            int parametersOff = reader.getUint();
+            int shortyIdx = reader.readUint();
+            int returnTypeIdx = reader.readUint();
+            int parametersOff = reader.readUint();
 
             ProtoId protoId;
             if (parametersOff != 0) {
-                Reader reader1 = new Reader(dexbs, parametersOff);
-                int paramSize = reader1.getUint();
+                Reader reader1 = new Reader(dexBuff, parametersOff);
+                int paramSize = reader1.readUint();
                 char paramTypes[] = new char[paramSize];
                 for (int j = 0; j < paramSize; j++) {
-                    paramTypes[j] = reader1.getUshort();
+                    paramTypes[j] = reader1.readUshort();
                 }
                 protoId = new ProtoId(shortyIdx, returnTypeIdx, parametersOff, paramSize, paramTypes);
             } else {
