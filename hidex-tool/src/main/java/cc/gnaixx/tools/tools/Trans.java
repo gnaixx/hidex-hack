@@ -1,5 +1,9 @@
 package cc.gnaixx.tools.tools;
 
+import java.nio.ByteBuffer;
+
+import cc.gnaixx.tools.model.HackPoint;
+
 /**
  * 名称: Trans
  * 描述:
@@ -41,13 +45,18 @@ public class Trans {
 
     //int转16进制
     public static String intToHex(int integer) {
+        byte[] bin = intToBin(integer);
+        return binToHex(bin);
+    }
+
+    public static byte[] intToBin(int integer){
         byte[] bin = new byte[]{
                 (byte) ((integer >> 24) & 0xFF),
                 (byte) ((integer >> 16) & 0xFF),
                 (byte) ((integer >> 8) & 0xFF),
                 (byte) (integer & 0xFF)
         };
-        return binToHex(bin);
+        return bin;
     }
 
     //二进制转字符串
@@ -69,10 +78,19 @@ public class Trans {
         return targe;
     }
 
-    //
+    //Lcc/gnaix/xx -> cc.gnaix.xx
     public static String pathToPackages(String path) {
         String packageName = path.replaceAll("/", ".");
         packageName = packageName.startsWith("L") ? packageName.substring(1, packageName.length() - 1) : packageName;
         return packageName;
+    }
+
+
+    public static byte[] hackpToBin(HackPoint point){
+        ByteBuffer bb = ByteBuffer.allocate(4 * 3);
+        bb.put(intToBin(point.type));
+        bb.put(intToBin(point.offset));
+        bb.put(intToBin(point.value));
+        return bb.array();
     }
 }

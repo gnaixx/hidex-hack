@@ -6,8 +6,8 @@ import com.alibaba.fastjson.JSONObject;
 import cc.gnaixx.tools.model.Uleb128;
 import cc.gnaixx.tools.tools.Reader;
 
-import static cc.gnaixx.tools.tools.StreamUtil.getUleb128;
-import static cc.gnaixx.tools.tools.StreamUtil.subdex;
+import static cc.gnaixx.tools.tools.BufferUtil.getUleb128;
+import static cc.gnaixx.tools.tools.BufferUtil.subdex;
 
 /**
  * 名称: StringIds

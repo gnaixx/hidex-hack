@@ -1,5 +1,7 @@
 package cc.gnaixx.tools.tools;
 
+import java.nio.ByteBuffer;
+
 import cc.gnaixx.tools.model.Uleb128;
 
 /**
@@ -10,7 +12,7 @@ import cc.gnaixx.tools.model.Uleb128;
  * @date 2016/11/24
  */
 
-public class StreamUtil {
+public class BufferUtil {
 
     public static byte[] subdex(byte[] stream, int off, int len) {
         byte[] sub = new byte[len];
@@ -44,5 +46,12 @@ public class StreamUtil {
             source[i+off] = replacement[i];
         }
         return source;
+    }
+
+    public static byte[] append(byte[] source, byte[] element, int len){
+        ByteBuffer bb = ByteBuffer.allocate(source.length + element.length);
+        bb.put(source);
+        bb.put(element);
+        return bb.array();
     }
 }

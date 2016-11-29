@@ -60,13 +60,20 @@ public class FileUtil {
             BufferedReader br = new BufferedReader(fr);
             String line;
             while ((line = br.readLine()) != null) {
-                if (!line.startsWith("#")) {
-                    String key = line.split(":")[0];
-                    String values[] = line.split(":")[1].split(",");
+                if (!line.startsWith("#") && !line.equals("")) {
+                    String conf[] = line.split(":");
+                    if(conf.length != 2){
+                        log("warning", "error config at :" + line);
+                        System.exit(0);
+                    }
 
+                    String key = conf[0];
+                    String values[] = conf[1].split(" ");
                     List<String> valueList = new ArrayList<>();
                     for (int i = 0; i < values.length; i++) {
-                        valueList.add(values[i].replaceAll(" ", ""));
+                        if (values[i] != null && !values[i].equals("")) {
+                            valueList.add(values[i]);
+                        }
                     }
                     config.put(key, valueList);
                 }

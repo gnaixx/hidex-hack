@@ -27,7 +27,11 @@ public class Reader {
     }
 
     public void setOff(int off){
-        offset = off;
+       this.offset = off;
+    }
+
+    public int getOff(){
+        return this.offset;
     }
 
     public void reset(byte[] buffer, int off){

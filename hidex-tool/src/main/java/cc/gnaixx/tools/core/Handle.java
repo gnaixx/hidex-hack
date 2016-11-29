@@ -1,11 +1,14 @@
 package cc.gnaixx.tools.core;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import cc.gnaixx.tools.model.dex.DexFile;
 import cc.gnaixx.tools.model.dex.Header;
 import cc.gnaixx.tools.model.dex.cladef.ClassDefs;
+import cc.gnaixx.tools.model.HackPoint;
+import cc.gnaixx.tools.tools.BufferUtil;
 import cc.gnaixx.tools.tools.Constants;
 
 import static cc.gnaixx.tools.model.DexCon.CHECKSUM_LEN;
@@ -15,9 +18,10 @@ import static cc.gnaixx.tools.model.DexCon.SIGNATURE_OFF;
 import static cc.gnaixx.tools.tools.Encrypt.checksum;
 import static cc.gnaixx.tools.tools.Encrypt.signature;
 import static cc.gnaixx.tools.tools.Log.log;
-import static cc.gnaixx.tools.tools.StreamUtil.replace;
+import static cc.gnaixx.tools.tools.BufferUtil.replace;
 import static cc.gnaixx.tools.tools.Trans.binToHex;
 import static cc.gnaixx.tools.tools.Trans.binToHex_Lit;
+import static cc.gnaixx.tools.tools.Trans.hackpToBin;
 import static cc.gnaixx.tools.tools.Trans.intToHex;
 import static cc.gnaixx.tools.tools.Trans.pathToPackages;
 
@@ -31,15 +35,17 @@ import static cc.gnaixx.tools.tools.Trans.pathToPackages;
 
 public class Handle {
 
-    private byte[] dexBuff; //dex 二进制流
-    private DexFile dexFile; //dex 对象
-    private Map<String, List<String>> config;  //配置
+    private Map<String, List<String>> config;       //配置
+    private List<HackPoint> hackPoints;   //修改的信息
+    private byte[] dexBuff;      //dex 二进制流
+    private DexFile dexFile;      //dex 对象
 
 
     public Handle(byte[] dexBuff, Map<String, List<String>> config) {
         this.dexBuff = dexBuff;
         this.dexFile = new DexFile();
         this.config = config;
+        this.hackPoints = new ArrayList<>();
     }
 
     public byte[] hidex() {
@@ -52,9 +58,21 @@ public class Handle {
         hackHeader();
         hackClassDef();
 
+        //添加hackpoint
+        appendHackPoint();
+
         //修复校验
         checkout();
         return dexBuff;
+    }
+
+    private void appendHackPoint() {
+        byte[] pointsBuff = new byte[]{};
+        for (int i = 0; i < hackPoints.size(); i++) {
+            byte[] pointBuff = hackpToBin(hackPoints.get(i));
+            pointsBuff = BufferUtil.append(pointsBuff, pointBuff, pointBuff.length);
+        }
+        dexBuff = BufferUtil.append(dexBuff, pointsBuff, pointsBuff.length);
     }
 
     //修复校验
@@ -77,22 +95,73 @@ public class Handle {
         header.hack(dexBuff);
     }
 
+    //修改ClassDfs
     private void hackClassDef() {
         ClassDefs classDefs = dexFile.classDefs;
         ClassDefs.ClassDef classDefItem[] = classDefs.classDefs;
-        List<String> hackClass = config.get(Constants.HIDE_STATIC_VAL);
 
-        for (int i = 0; i < classDefItem.length; i++) {
-            String dexName = dexFile.typeIds.getString(dexFile, classDefItem[i].classIdx);
-            dexName = pathToPackages(dexName);
-            for (int j = 0; j < hackClass.size(); j++) {
-                String confName = hackClass.get(j);
+        List<String> confClassStaticFields = config.get(Constants.HACK_STATIC_VAL);
+        List<String> confClass = config.get(Constants.HACK_CLASS);
+
+        //hack 静态变量
+        hackClassStaticFields(classDefItem, confClassStaticFields);
+        //hack 成员函数
+        hackClass(classDefItem, confClass);
+        classDefs.hack(dexBuff);
+    }
+
+    //隐藏整个类的定义
+    private void hackClass(ClassDefs.ClassDef[] classDefItem, List<String> conf) {
+        if (conf == null) {
+            return;
+        }
+        for (int i = 0; i < conf.size(); i++) {
+            String confName = conf.get(i);
+            boolean isDef = false;
+            for (int j = 0; j < classDefItem.length; j++) {
+                String dexName = dexFile.typeIds.getString(dexFile, classDefItem[j].classIdx);
+                dexName = pathToPackages(dexName);
                 if (dexName.equals(confName)) {
-                    classDefItem[i].staticValueOff = 0;
-                    log("hack", hackClass.get(j));
+                    HackPoint point = classDefItem[i].classDataOff;
+                    addHackPoint(point.type, point.offset, point.value); //添加修改点
+                    classDefItem[i].classDataOff.value = 0;
+                    log("hack_class", conf.get(j));
+                    isDef = true;
                 }
             }
+            if (isDef == false) {
+                log("warning", "con't find class:" + confName);
+            }
         }
-        classDefs.hack(dexBuff);
+    }
+
+    //隐藏静态变量初始化
+    private void hackClassStaticFields(ClassDefs.ClassDef[] classDefItem, List<String> conf) {
+        if (conf == null) {
+            return;
+        }
+        for (int i = 0; i < conf.size(); i++) {
+            String confName = conf.get(i);
+            boolean isDef = false;
+            for (int j = 0; j < classDefItem.length; j++) {
+                String dexName = dexFile.typeIds.getString(dexFile, classDefItem[j].classIdx);
+                dexName = pathToPackages(dexName);
+                if (dexName.equals(confName)) {
+                    HackPoint point = classDefItem[i].staticValueOff;
+                    addHackPoint(point.type, point.offset, point.value); //添加修改点
+                    classDefItem[i].staticValueOff.value = 0;
+                    log("hack_field", conf.get(j));
+                    isDef = true;
+                }
+            }
+            if (isDef == false) {
+                log("warning", "con't find class:" + confName);
+            }
+        }
+    }
+
+    //添加hackpoint
+    private void addHackPoint(int type, int off, int val) {
+        this.hackPoints.add(new HackPoint(type, off, val));
     }
 }
