@@ -130,8 +130,12 @@ public class ClassDefs {
             jsonItem.put("annotations_off", classDef.annotationsOff);
             jsonItem.put("class_data_off", classDef.classDataOff.value);
             jsonItem.put("static_values_off", classDef.staticValueOff.value);
-
-            jsonItem.put("static_values", classDef.staticValues.toJson());
+            //if(classDef.classDataOff.value != 0) {
+            //    jsonItem.put("static_values", classDef.classData.toJson());
+            //}
+            if(classDef.staticValueOff.value != 0) {
+                jsonItem.put("static_values", classDef.staticValues.toJson());
+            }
             jsonDefs.add(i, jsonItem);
         }
         return jsonDefs;

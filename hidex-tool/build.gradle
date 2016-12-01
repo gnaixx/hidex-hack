@@ -1,4 +1,7 @@
+import javax.print.attribute.standard.Destination
+
 apply plugin: 'java'
+
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
@@ -7,3 +10,26 @@ dependencies {
 
 sourceCompatibility = "1.7"
 targetCompatibility = "1.7"
+
+jar {
+    String someString = ''
+    configurations.runtime.each {someString = someString + " lib//"+it.name}
+    manifest {
+        attributes 'Main-Class': 'cc.gnaixx.tools.core.Hidex'
+        attributes 'Class-Path': someString
+    }
+}
+
+task clearPj(type:Delete){
+    delete 'build','target'
+}
+
+//copy 运行时依赖
+task copyJar(type:Copy){
+    from configurations.runtime
+    into ('build/libs/lib')
+}
+
+task release(type: Copy,dependsOn: [build,copyJar]) {
+    //
+}

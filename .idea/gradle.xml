@@ -9,6 +9,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/hidex-demo" />
+            <option value="$PROJECT_DIR$/hidex-inter" />
             <option value="$PROJECT_DIR$/hidex-samp" />
             <option value="$PROJECT_DIR$/hidex-tool" />
           </set>

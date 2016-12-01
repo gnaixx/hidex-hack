@@ -11,9 +11,34 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="cc.gnaixx.hidex_hack.MainActivity">
 
-    <TextView
-        android:id="@+id/sample_text"
+
+    <Button
+        android:id="@+id/btn_hidex"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"/>
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:text="hidex"/>
+
+    <Button
+        android:id="@+id/btn_sampl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/btn_hidex"
+        android:layout_marginEnd="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_toLeftOf="@+id/btn_hidex"
+        android:layout_toStartOf="@+id/btn_hidex"
+        android:text="sampl"/>
+
+    <Button
+        android:id="@+id/btn_redex"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/btn_hidex"
+        android:layout_marginLeft="10dp"
+        android:layout_marginStart="10dp"
+        android:layout_toEndOf="@+id/btn_hidex"
+        android:layout_toRightOf="@+id/btn_hidex"
+        android:text="redex"/>
 </RelativeLayout>

@@ -26,22 +26,22 @@ import static cc.gnaixx.tools.tools.Trans.intToHex;
 import static cc.gnaixx.tools.tools.Trans.pathToPackages;
 
 /**
- * 名称: Handle
+ * 名称: HidexHandle
  * 描述:
  *
  * @author xiangqing.xue
  * @date 2016/11/24
  */
 
-public class Handle {
+public class HidexHandle {
 
-    private Map<String, List<String>> config;       //配置
-    private List<HackPoint> hackPoints;   //修改的信息
-    private byte[] dexBuff;      //dex 二进制流
-    private DexFile dexFile;      //dex 对象
+    private Map<String, List<String>> config; //配置
+    private List<HackPoint> hackPoints;       //修改的信息
+    private byte[] dexBuff;                   //dex 二进制流
+    private DexFile dexFile;                  //dex 对象
 
 
-    public Handle(byte[] dexBuff, Map<String, List<String>> config) {
+    public HidexHandle(byte[] dexBuff, Map<String, List<String>> config) {
         this.dexBuff = dexBuff;
         this.dexFile = new DexFile();
         this.config = config;
@@ -54,15 +54,10 @@ public class Handle {
         log(dexFile.toJsonStr());
         log("config", config.toString());
 
-        //hidex
-        hackHeader();
         hackClassDef();
-
-        //添加hackpoint
-        appendHackPoint();
-
-        //修复校验
-        checkout();
+        hackHeader();   //修改头部信息，必须放在最后
+        appendHackPoint();  //添加hackpoint
+        checkout(); //修复校验
         return dexBuff;
     }
 
@@ -92,6 +87,7 @@ public class Handle {
     //修改header
     private void hackHeader() {
         Header header = dexFile.header;
+        header.fileSize = this.dexBuff.length;  //修改文件长度
         header.hack(dexBuff);
     }
 
@@ -122,10 +118,10 @@ public class Handle {
                 String dexName = dexFile.typeIds.getString(dexFile, classDefItem[j].classIdx);
                 dexName = pathToPackages(dexName);
                 if (dexName.equals(confName)) {
-                    HackPoint point = classDefItem[i].classDataOff;
+                    HackPoint point = classDefItem[j].classDataOff;
                     addHackPoint(point.type, point.offset, point.value); //添加修改点
-                    classDefItem[i].classDataOff.value = 0;
-                    log("hack_class", conf.get(j));
+                    classDefItem[j].classDataOff.value = 0;
+                    log("hack_class", conf.get(i));
                     isDef = true;
                 }
             }
@@ -147,10 +143,10 @@ public class Handle {
                 String dexName = dexFile.typeIds.getString(dexFile, classDefItem[j].classIdx);
                 dexName = pathToPackages(dexName);
                 if (dexName.equals(confName)) {
-                    HackPoint point = classDefItem[i].staticValueOff;
+                    HackPoint point = classDefItem[j].staticValueOff;
                     addHackPoint(point.type, point.offset, point.value); //添加修改点
-                    classDefItem[i].staticValueOff.value = 0;
-                    log("hack_field", conf.get(j));
+                    classDefItem[j].staticValueOff.value = 0;
+                    log("hack_field", conf.get(i));
                     isDef = true;
                 }
             }
