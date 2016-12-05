@@ -41,6 +41,10 @@ function copy_dex(){
     cp -r output/*.dex ${assets_dir}
 }
 
+function clean_output(){
+    rm output/*.dex
+    rm output/*.jar
+}
 
 if [[ $1 == 1 ]]
 then
@@ -51,7 +55,11 @@ then
 elif [[ $1 == 3 ]]
 then
     copy_dex
+elif [[ $1 == 4 ]]
+then
+    clean_output
 else
+    clean_output
     build_dex
     hack_dex
     reverse_dex

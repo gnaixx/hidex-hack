@@ -3,6 +3,9 @@ package cc.gnaixx.tools.tools;
 import java.nio.ByteBuffer;
 
 import cc.gnaixx.tools.model.HackPoint;
+import cc.gnaixx.tools.model.Uleb128;
+
+import static cc.gnaixx.tools.tools.Log.log;
 
 /**
  * 名称: Trans
@@ -49,7 +52,18 @@ public class Trans {
         return binToHex(bin);
     }
 
-    public static byte[] intToBin(int integer){
+    public static byte[] intToBin_Lit(int integer){
+        byte[] bin = new byte[]{
+                (byte) ((integer >> 0) & 0xFF),
+                (byte) ((integer >> 8) & 0xFF),
+                (byte) ((integer >> 16) & 0xFF),
+                (byte) ((integer >> 24) & 0xFF)
+        };
+        return bin;
+    }
+
+    //int 转 二进制
+    public static byte[] intToBin(int integer) {
         byte[] bin = new byte[]{
                 (byte) ((integer >> 24) & 0xFF),
                 (byte) ((integer >> 16) & 0xFF),
@@ -69,7 +83,7 @@ public class Trans {
         return sb.toString();
     }
 
-    //
+    //Ushort 转 int
     public static int[] charToInt(char[] data) {
         int[] targe = new int[data.length];
         for (int i = 0; i < data.length; i++) {
@@ -85,12 +99,48 @@ public class Trans {
         return packageName;
     }
 
-
-    public static byte[] hackpToBin(HackPoint point){
+    //hackPoint 转 二进制
+    public static byte[] hackpToBin(HackPoint point) {
         ByteBuffer bb = ByteBuffer.allocate(4 * 3);
-        bb.put(intToBin(point.type));
-        bb.put(intToBin(point.offset));
-        bb.put(intToBin(point.value));
+        bb.put(intToBin_Lit(point.type));
+        bb.put(intToBin_Lit(point.offset));
+        bb.put(intToBin_Lit(point.value));
         return bb.array();
+    }
+
+    //二进制转 hackPoint
+    public static HackPoint[] binToHackP(byte[] buff) {
+        int remainder = buff.length % 12;
+        if (remainder != 0) {     //数据有误无法读取
+            log("warning", "hackinfo.length % 12 != 0");
+            System.exit(0);
+        }
+        int count = buff.length / 12;
+        HackPoint[] hackPoints = new HackPoint[count];
+        Reader reader = new Reader(buff, 0);
+        for (int i = 0; i < count; i++) {
+            int type = reader.readUint();
+            int offset = reader.readUint();
+            int value = reader.readUint();
+            HackPoint hackPoint = new HackPoint(type, offset, value);
+            hackPoints[i] = hackPoint;
+        }
+        return hackPoints;
+    }
+
+    public static Uleb128 intToUleb128(int val) {
+        byte[] realVal = new byte[]{0x00, 0x00, 0x00, 0x00};
+        int len = 0;
+        for (int i = 0; i < realVal.length; i++) {
+            len = i + 1;
+            if (val > (0x7F)) {
+                realVal[i] = (byte) (0x01 << 7);
+            }
+            realVal[i] += (val & 0x7F);
+            val = val >> 7;
+            if (val <= 0) break;
+        }
+        Uleb128 uleb128 = new Uleb128(BufferUtil.subdex(realVal, 0, len), len);
+        return uleb128;
     }
 }

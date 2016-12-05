@@ -12,6 +12,7 @@ import java.io.File;
 
 public class Constants {
 
+    /************************ 文件路径 ************************/
     private static final String DEX_NAME    = "sampl.dex";
     private static final String HIDEX_NAME  = "hidex.dex";
     private static final String REDEX_NAME  = "redex.dex";
@@ -33,6 +34,8 @@ public class Constants {
         Log.log("path", USER_DIR);
     }
 
+
+    /************************ 配置参数 ************************/
     public static final String HACK_CLASS      = "hack_class";         //隐藏成员函数
     public static final String HACK_STATIC_VAL = "hack_static_val";    //隐藏静态变量值
     public static final String HACK_METHOD     = "hack_method";        //隐藏成员函数

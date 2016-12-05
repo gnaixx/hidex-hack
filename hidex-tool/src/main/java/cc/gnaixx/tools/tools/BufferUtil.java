@@ -4,6 +4,8 @@ import java.nio.ByteBuffer;
 
 import cc.gnaixx.tools.model.Uleb128;
 
+import static cc.gnaixx.tools.model.DexCon.UINT_LEN;
+
 /**
  * 名称: StreamUtil
  * 描述:
@@ -20,6 +22,19 @@ public class BufferUtil {
             sub[i] = stream[i + off];
         }
         return sub;
+    }
+
+    public static int getUint(byte[] buffer, int offset) {
+        int value = 0;
+        for (int i = 0; i < UINT_LEN; i++) {
+            int seg = buffer[offset + i];
+            if (seg < 0) {
+                seg = 256 + seg;
+            }
+            value += seg << (8 * i);
+        }
+        offset += UINT_LEN; //int 四个字节
+        return value;
     }
 
     public static Uleb128 getUleb128(byte[] stream, int off) {
