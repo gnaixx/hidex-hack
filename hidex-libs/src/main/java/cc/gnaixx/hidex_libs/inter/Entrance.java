@@ -1,4 +1,4 @@
-package cc.gnaixx.hidex_inter;
+package cc.gnaixx.hidex_libs.inter;
 
 /**
  * 名称: Entrance

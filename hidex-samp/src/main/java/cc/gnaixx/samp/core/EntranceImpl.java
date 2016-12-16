@@ -5,7 +5,7 @@ package cc.gnaixx.samp.core;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import cc.gnaixx.hidex_inter.Entrance;
+import cc.gnaixx.hidex_libs.inter.Entrance;
 
 /**
  * 名称: Main

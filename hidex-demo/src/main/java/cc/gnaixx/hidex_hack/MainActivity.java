@@ -8,25 +8,15 @@ import android.widget.Button;
 
 import java.io.File;
 
-import cc.gnaixx.hidex_inter.Entrance;
+import cc.gnaixx.hidex_libs.inter.Entrance;
 import dalvik.system.DexClassLoader;
 
 import static cc.gnaixx.hidex_hack.tool.FileUtil.copyToCache;
+import static cc.gnaixx.hidex_libs.tools.NativeHelper.redex;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
-    // Used to load the 'native-lib' library on application startup.
-    static {
-        System.loadLibrary("native-lib");
-    }
-
-    /**
-     * A native method that is implemented by the 'native-lib' native library,
-     * which is packaged with this application.
-     */
-    public native String stringFromJNI();
-
-    private static final String TAG         = "GNAIXX";
+    private static final String TAG         = "HIDEX";
     private static final String DEX_NAME    = "sampl.dex";
     private static final String HIDEX_NAME  = "hidex.dex";
     private static final String REDEX_NAME  = "redex.dex";
@@ -44,7 +34,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnSampl.setOnClickListener(this);
         btnHidex.setOnClickListener(this);
         btnRedex.setOnClickListener(this);
-
+        redex();
     }
 
     @Override
@@ -80,7 +70,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             } catch (Throwable e) {
                 e.printStackTrace();
             }
-
         }
     }
 }

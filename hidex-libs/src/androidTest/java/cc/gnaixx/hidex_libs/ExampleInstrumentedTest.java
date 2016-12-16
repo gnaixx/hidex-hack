@@ -1,4 +1,4 @@
-package cc.gnaixx.hidex_inter;
+package cc.gnaixx.hidex_libs;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

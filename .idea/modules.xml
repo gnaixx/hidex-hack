@@ -5,7 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/Hidex-hack2.iml" filepath="$PROJECT_DIR$/Hidex-hack2.iml" />
       <module fileurl="file://$PROJECT_DIR$/hidex-demo/hidex-demo.iml" filepath="$PROJECT_DIR$/hidex-demo/hidex-demo.iml" />
       <module fileurl="file://$PROJECT_DIR$/hidex-hack.iml" filepath="$PROJECT_DIR$/hidex-hack.iml" />
-      <module fileurl="file://$PROJECT_DIR$/hidex-inter/hidex-inter.iml" filepath="$PROJECT_DIR$/hidex-inter/hidex-inter.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hidex-libs/hidex-libs.iml" filepath="$PROJECT_DIR$/hidex-libs/hidex-libs.iml" />
       <module fileurl="file://$PROJECT_DIR$/hidex-samp/hidex-samp.iml" filepath="$PROJECT_DIR$/hidex-samp/hidex-samp.iml" />
       <module fileurl="file://$PROJECT_DIR$/hidex-tool/hidex-tool.iml" filepath="$PROJECT_DIR$/hidex-tool/hidex-tool.iml" />
       <module fileurl="file://$PROJECT_DIR$/sam-lib/sam-lib.iml" filepath="$PROJECT_DIR$/sam-lib/sam-lib.iml" />

@@ -3,7 +3,6 @@ package cc.gnaixx.tools.core;
 
 import cc.gnaixx.tools.model.HackPoint;
 import cc.gnaixx.tools.model.Uleb128;
-import cc.gnaixx.tools.tools.Encrypt;
 import cc.gnaixx.tools.tools.Trans;
 import cc.gnaixx.tools.tools.Writer;
 
