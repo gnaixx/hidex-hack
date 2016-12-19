@@ -59,6 +59,7 @@ public class RedexHandle {
         return this.dexBuff;
     }
 
+    //还原原始值
     private void recovery(HackPoint hackPoint) {
         Writer writer = new Writer(this.dexBuff, hackPoint.offset);
         if (hackPoint.type == HackPoint.USHORT) {

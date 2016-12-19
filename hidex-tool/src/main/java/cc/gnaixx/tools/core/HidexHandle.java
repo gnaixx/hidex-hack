@@ -27,7 +27,7 @@ import static cc.gnaixx.tools.tools.Trans.pathToPackages;
 
 /**
  * 名称: HidexHandle
- * 描述:
+ * 描述: write dex
  *
  * @author xiangqing.xue
  * @date 2016/11/24
@@ -49,19 +49,144 @@ public class HidexHandle {
     }
 
     public byte[] hidex() {
-        //创建dex 对象
-        dexFile.read(dexBuff);
+        dexFile.read(dexBuff);  //创建dex对象
         log(dexFile.toJsonStr());
         log("config", config.toString());
 
         hackClassDef();
         hackHeader();   //修改头部信息，必须放在最后
-        appendHackPoint();  //添加hackpoint
-        checkout(); //修复校验
+        appendHP();     //添加hackpoint
+        checkout();     //修复校验
         return dexBuff;
     }
 
-    private void appendHackPoint() {
+    //修改ClassDfs定义
+    private void hackClassDef() {
+        ClassDefs classDefs = dexFile.classDefs;
+        ClassDefs.ClassDef classDefItem[] = classDefs.classDefs;
+
+        List<String> confCdOff  = config.get(Constants.HACK_CLASS);
+        List<String> confSfVal  = config.get(Constants.HACK_SF_VAL);
+        List<String> confMeSize = config.get(Constants.HACK_ME_SIZE);
+        List<String> confMeDef  = config.get(Constants.HACK_ME_DEF);
+
+        hackCdOff(classDefItem, confCdOff);     //write 类定义
+        hackSfVal(classDefItem, confSfVal);     //write 静态变量初始化
+        hackMeSize(classDefItem, confMeSize);   //write 静态变量个数
+        hackMeDef(classDefItem, confMeDef);     //write 重复函数定义
+
+        classDefs.write(dexBuff);                //将修改写回buffer
+    }
+
+    //隐藏整个类的定义
+    private void hackCdOff(ClassDefs.ClassDef[] classDefItem, List<String> conf) {
+        seekHP(classDefItem, conf, new SeekCallBack() {
+            @Override
+            public void doHack(ClassDefs.ClassDef classDefItem, List<HackPoint> hackPoints) {
+                HackPoint point = classDefItem.classDataOff.clone(); //获取类定义的偏移
+                hackPoints.add(point);                       //保存原始值
+                classDefItem.classDataOff.value = 0;         //修改类定义偏移为0
+            }
+        });
+    }
+
+    //隐藏静态变量初始化
+    private void hackSfVal(ClassDefs.ClassDef[] classDefItem, List<String> conf) {
+        seekHP(classDefItem, conf, new SeekCallBack() {
+            @Override
+            public void doHack(ClassDefs.ClassDef classDefItem, List<HackPoint> hackPoints) {
+                HackPoint point = classDefItem.staticValueOff.clone();  //获取静态变量数据偏移
+                hackPoints.add(point);                          //添加修改点
+                classDefItem.staticValueOff.value = 0;          //将静态变量的偏移改为0（隐藏赋值）
+            }
+        });
+    }
+
+    //隐藏静态变量个数
+    private void hackMeSize(ClassDefs.ClassDef[] classDefItem, List<String> conf){
+        seekHP(classDefItem, conf, new SeekCallBack() {
+            @Override
+            public void doHack(ClassDefs.ClassDef classDefItem, List<HackPoint> hackPoints) {
+                HackPoint directPoint = classDefItem.classData.directMethodsSize.clone(); //同时需改虚函数和直接函数
+                HackPoint virtualPoint = classDefItem.classData.virtualMethodsSize.clone();
+                hackPoints.add(directPoint);
+                hackPoints.add(virtualPoint);
+                classDefItem.classData.directMethodsSize.value = 0;
+                classDefItem.classData.virtualMethodsSize.value = 0;
+            }
+        });
+    }
+
+    //重复函数定义
+    private void hackMeDef(ClassDefs.ClassDef[] classDefItem, List<String> conf){
+        seekHP(classDefItem, conf, new SeekCallBack() {
+            @Override
+            public void doHack(ClassDefs.ClassDef classDefItem, List<HackPoint> hackPoints) {
+                /*int directMeSize = classDefItem.classData.directMethodsSize.value;
+                int directMeCodeOff = 0;
+                for (int i = 0; i < directMeSize; i++) {
+                    if (i == 0) {
+                        directMeCodeOff = classDefItem.classData.directMethods[i].codeOff.value;
+                    }else{
+                        HackPoint point = classDefItem.classData.directMethods[i].codeOff.clone();
+                        hackPoints.add(point);
+                        classDefItem.classData.directMethods[i].codeOff.value = directMeCodeOff;
+                    }
+                }*/
+
+                //以第一个为默认值
+                int virtualMeSize = classDefItem.classData.virtualMethodsSize.value;
+                int virtualMeCodeOff = 0;
+                for (int i = 0; i < virtualMeSize; i++) {
+                    if (i == 0) {
+                        virtualMeCodeOff = classDefItem.classData.virtualMethods[i].codeOff.value;
+                    }else{
+                        HackPoint point = classDefItem.classData.virtualMethods[i].codeOff.clone();
+                        hackPoints.add(point);
+                        classDefItem.classData.virtualMethods[i].codeOff.value = virtualMeCodeOff;
+                    }
+                }
+            }
+        });
+    }
+
+    //查找配置文件所在类位置
+    private void seekHP(ClassDefs.ClassDef[] classDefItem, List<String> conf, SeekCallBack callBack){
+        if (conf == null) {
+            return;
+        }
+        for (int i = 0; i < conf.size(); i++) {
+            String classname = conf.get(i);
+            boolean isDef = false;
+            for (int j = 0; j < classDefItem.length; j++) {
+                String className = dexFile.typeIds.getString(dexFile, classDefItem[j].classIdx);
+                className = pathToPackages(className); //获取类名
+                if (className.equals(classname)) {
+                    callBack.doHack(classDefItem[j], this.hackPoints); //具体操作
+                    log("hack_field", conf.get(i));
+                    isDef = true;
+                }
+            }
+            if (isDef == false) {
+                log("warning", "con't find class:" + classname);
+            }
+        }
+    }
+
+    //具体操作回调处理
+    interface SeekCallBack {
+        void doHack(ClassDefs.ClassDef classDefItem, List<HackPoint> hackPoints);
+    }
+
+    //修改header
+    private void hackHeader() {
+        Header header = dexFile.header;
+        header.fileSize = this.dexBuff.length;  //修改文件长度
+        header.write(dexBuff);
+    }
+
+    //保留修改信息
+    private void appendHP() {
         byte[] pointsBuff = new byte[]{};
         for (int i = 0; i < hackPoints.size(); i++) {
             byte[] pointBuff = hackpToBin(hackPoints.get(i));
@@ -70,7 +195,7 @@ public class HidexHandle {
         dexBuff = BufferUtil.append(dexBuff, pointsBuff, pointsBuff.length);
     }
 
-    //修复校验
+    //修复 checksum signature 校验
     private void checkout() {
         log("old_signature", binToHex(dexFile.header.signature));
         log("old_checksum", intToHex(dexFile.header.checksum));
@@ -82,82 +207,5 @@ public class HidexHandle {
 
         log("new_signature", binToHex(signature));
         log("new_checksum", binToHex_Lit(checksum));
-    }
-
-    //修改header
-    private void hackHeader() {
-        Header header = dexFile.header;
-        header.fileSize = this.dexBuff.length;  //修改文件长度
-        header.hack(dexBuff);
-    }
-
-    //修改ClassDfs
-    private void hackClassDef() {
-        ClassDefs classDefs = dexFile.classDefs;
-        ClassDefs.ClassDef classDefItem[] = classDefs.classDefs;
-
-        List<String> confClassStaticFields = config.get(Constants.HACK_STATIC_VAL);
-        List<String> confClass = config.get(Constants.HACK_CLASS);
-
-        //hack 静态变量
-        hackClassStaticFields(classDefItem, confClassStaticFields);
-        //hack 成员函数
-        hackClass(classDefItem, confClass);
-        classDefs.hack(dexBuff);
-    }
-
-    //隐藏整个类的定义
-    private void hackClass(ClassDefs.ClassDef[] classDefItem, List<String> conf) {
-        if (conf == null) {
-            return;
-        }
-        for (int i = 0; i < conf.size(); i++) {
-            String confName = conf.get(i);
-            boolean isDef = false;
-            for (int j = 0; j < classDefItem.length; j++) {
-                String dexName = dexFile.typeIds.getString(dexFile, classDefItem[j].classIdx);
-                dexName = pathToPackages(dexName);
-                if (dexName.equals(confName)) {
-                    HackPoint point = classDefItem[j].classDataOff;
-                    addHackPoint(point.type, point.offset, point.value); //添加修改点
-                    classDefItem[j].classDataOff.value = 0;
-                    log("hack_class", conf.get(i));
-                    isDef = true;
-                }
-            }
-            if (isDef == false) {
-                log("warning", "con't find class:" + confName);
-            }
-        }
-    }
-
-    //隐藏静态变量初始化
-    private void hackClassStaticFields(ClassDefs.ClassDef[] classDefItem, List<String> conf) {
-        if (conf == null) {
-            return;
-        }
-        for (int i = 0; i < conf.size(); i++) {
-            String confName = conf.get(i);
-            boolean isDef = false;
-            for (int j = 0; j < classDefItem.length; j++) {
-                String dexName = dexFile.typeIds.getString(dexFile, classDefItem[j].classIdx);
-                dexName = pathToPackages(dexName);
-                if (dexName.equals(confName)) {
-                    HackPoint point = classDefItem[j].staticValueOff;
-                    addHackPoint(point.type, point.offset, point.value); //添加修改点
-                    classDefItem[j].staticValueOff.value = 0;
-                    log("hack_field", conf.get(i));
-                    isDef = true;
-                }
-            }
-            if (isDef == false) {
-                log("warning", "con't find class:" + confName);
-            }
-        }
-    }
-
-    //添加hackpoint
-    private void addHackPoint(int type, int off, int val) {
-        this.hackPoints.add(new HackPoint(type, off, val));
     }
 }

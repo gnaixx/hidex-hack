@@ -74,7 +74,7 @@ public class Header {
         this.dataOff = reader.readUint();
     }
 
-    public void hack(byte[] dexBuff){
+    public void write(byte[] dexBuff){
         Writer writer = new Writer(dexBuff, 0);
         writer.replace(magic, MAGIC_LEN);
         writer.writeUint(checksum);

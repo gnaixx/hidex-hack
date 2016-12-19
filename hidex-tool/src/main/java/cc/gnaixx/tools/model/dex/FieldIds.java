@@ -41,7 +41,6 @@ public class FieldIds {
         }
     }
 
-
     public JSONArray toJson(DexFile dexFile){
         JSONArray jsonIds = new JSONArray();
 

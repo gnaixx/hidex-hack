@@ -80,17 +80,19 @@ public class Reader {
         byte realVal[] = new byte[4];
         boolean flag = false;
         do {
+            flag = false;
             byte seg = buffer[offset];
-            if ((seg >> 7) == 1) {
+            if (seg < 0) {
                 flag = true;
             }
             seg = buffer[offset];
-            value += ((seg << 1) >> 1) << (7 * count);
+            seg = (byte) (seg & 0x7F);
+            value += seg << (7 * count);
             realVal[count] = buffer[offset];
             count++;
             offset++;
         } while (flag);
-        return new Uleb128(realVal, value);
+        return new Uleb128(BufferUtil.subdex(realVal, 0, count), value);
     }
 
 }

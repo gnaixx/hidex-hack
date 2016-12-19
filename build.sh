@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 function build_dex(){
     echo "build and dx dex"
-    ./gradlew -a -p hidex-samp assembleRelease
-    rm ./output/sampl.*
+    ./gradlew -p hidex-samp assembleRelease
+    #rm ./output/sampl.*
     cp ./hidex-samp/build/intermediates/bundles/release/classes.jar ./output/sampl.jar
     #cp jar
     cd output
@@ -62,6 +62,5 @@ else
     clean_output
     build_dex
     hack_dex
-    reverse_dex
     copy_dex
 fi

@@ -130,17 +130,18 @@ public class Trans {
 
     public static Uleb128 intToUleb128(int val) {
         byte[] realVal = new byte[]{0x00, 0x00, 0x00, 0x00};
+        int bk = val;
         int len = 0;
         for (int i = 0; i < realVal.length; i++) {
             len = i + 1;
-            if (val > (0x7F)) {
-                realVal[i] = (byte) (0x01 << 7);
-            }
             realVal[i] += (val & 0x7F);
+            if (val > (0x7F)) {
+                realVal[i] = (byte) (realVal[i] | (0x01 << 7));
+            }
             val = val >> 7;
             if (val <= 0) break;
         }
-        Uleb128 uleb128 = new Uleb128(BufferUtil.subdex(realVal, 0, len), len);
+        Uleb128 uleb128 = new Uleb128(BufferUtil.subdex(realVal, 0, len), bk);
         return uleb128;
     }
 }

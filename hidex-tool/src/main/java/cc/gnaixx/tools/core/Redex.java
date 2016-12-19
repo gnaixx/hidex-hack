@@ -19,7 +19,7 @@ public class Redex {
         //input
         byte[] dexBuff = FileUtil.read(HIDEX_FILE);
 
-        //hide dex
+        //restore dex
         RedexHandle handle = new RedexHandle(dexBuff);
         dexBuff = handle.redex();
 

@@ -10,5 +10,11 @@ package cc.gnaixx.hidex_libs.inter;
 
 public interface Entrance {
 
+    byte[] encrypt(byte[] data, byte[] key);
+
+    byte[] decrypt(byte[] data, byte[] key);
+
+    String md5(String data);
+
     String getStaticFields();
 }

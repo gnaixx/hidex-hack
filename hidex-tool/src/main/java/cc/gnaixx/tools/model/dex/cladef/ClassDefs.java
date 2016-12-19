@@ -29,8 +29,8 @@ public class ClassDefs {
         public HackPoint    classDataOff;   //class具体用到的数据，位于data区，格式为class_data_item,描述class的field,method,method执行代码
         public HackPoint    staticValueOff; //位于data区，格式为encoded_array_item
 
-        StaticValues staticValues;  // classDataOff不为0时存在
-        ClassData    classData;     // staticValueOff不为0存在
+        public StaticValues staticValues;  // classDataOff不为0时存在
+        public ClassData    classData;     // staticValueOff不为0存在
 
         public ClassDef(int classIdx, int accessFlags,
                         int superclassIdx, int interfacesOff,
@@ -46,8 +46,8 @@ public class ClassDefs {
             this.staticValueOff = staticValueOff;
         }
 
-        public void setClassData(){
-
+        public void setClassData(ClassData classData){
+            this.classData = classData;
         }
 
         public void setStaticValue(StaticValues staticValues){
@@ -89,11 +89,15 @@ public class ClassDefs {
                 StaticValues staticValues = new StaticValues(staticSize);
                 classDef.setStaticValue(staticValues);
             }
+
+            if(classDataOff.value != 0){
+                classDef.setClassData(new ClassData(dexBuff, classDataOff.value));
+            }
             classDefs[i] = classDef;
         }
     }
 
-    public void hack(byte[] dexBuff){
+    public void write(byte[] dexBuff){
         Writer writer = new Writer(dexBuff, offset);
         for(int i=0; i<size; i++){
             ClassDef classDef = classDefs[i];
@@ -106,12 +110,12 @@ public class ClassDefs {
 
             writer.writeUint(classDef.classDataOff.value);
             if(classDef.classDataOff.value != 0){
-
+                classDef.classData.write(dexBuff, classDef.classDataOff.value);
             }
 
             writer.writeUint(classDef.staticValueOff.value);
             if(classDef.staticValueOff.value != 0){
-
+                //暂时不做处理
             }
         }
     }
@@ -130,9 +134,9 @@ public class ClassDefs {
             jsonItem.put("annotations_off", classDef.annotationsOff);
             jsonItem.put("class_data_off", classDef.classDataOff.value);
             jsonItem.put("static_values_off", classDef.staticValueOff.value);
-            //if(classDef.classDataOff.value != 0) {
-            //    jsonItem.put("static_values", classDef.classData.toJson());
-            //}
+            if(classDef.classDataOff.value != 0) {
+                jsonItem.put("class_data", classDef.classData.toJson());
+            }
             if(classDef.staticValueOff.value != 0) {
                 jsonItem.put("static_values", classDef.staticValues.toJson());
             }

@@ -28,11 +28,6 @@ public class DexFile {
     public ClassDefs classDefs;
     public MapList mapList;
 
-    public DexFile(){
-
-    }
-
-
     //reader dex
     public void read(byte[] dexBuff){
         //read header
