@@ -8,6 +8,7 @@ import org.json.JSONObject;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Locale;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -49,7 +50,7 @@ public class EntranceImpl implements Entrance {
             byte[] result = digest.digest();
             BigInteger bInt = new BigInteger(1, result);
             // Create Hex String
-            String md5 = bInt.toString(16).toLowerCase();
+            String md5 = bInt.toString(16).toLowerCase(Locale.getDefault());
             // pad zero
             while (md5.length() < 32) {
                 md5 = "0" + md5;
@@ -107,7 +108,7 @@ public class EntranceImpl implements Entrance {
                 if (hex.length() == 1) {
                     hex = '0' + hex;
                 }
-                sb.append(hex.toUpperCase());
+                sb.append(hex.toUpperCase(Locale.getDefault()));
             }
             return sb.toString();
         } else {

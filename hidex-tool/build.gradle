@@ -15,7 +15,7 @@ jar {
     String someString = ''
     configurations.runtime.each {someString = someString + " lib//"+it.name}
     manifest {
-        attributes 'Main-Class': 'cc.gnaixx.tools.core.Hidex'
+        attributes 'Main-Class': 'cc.gnaixx.tools.core.Main'
         attributes 'Class-Path': someString
     }
 }
@@ -30,6 +30,6 @@ task copyJar(type:Copy){
     into ('build/libs/lib')
 }
 
-task release(type: Copy,dependsOn: [build,copyJar]) {
+task assembleRelease(type: Copy,dependsOn: [build,copyJar]) {
     //
 }

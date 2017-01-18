@@ -6,6 +6,10 @@
 项目主要功能是为了实现隐藏dex文件中关键的代码
 
 ## 项目模块
+### hidex-demo
+### hidex-libs
+### hidex-samp
+### hidex-tool
 
 ## 实现原理
 

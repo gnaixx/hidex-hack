@@ -34,7 +34,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnSampl.setOnClickListener(this);
         btnHidex.setOnClickListener(this);
         btnRedex.setOnClickListener(this);
-        redex();
     }
 
     @Override
@@ -53,6 +52,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void loadDex(String filename){
+        int result = redex(getAssets(), "hidex.dex", getCacheDir().getAbsolutePath());
+        Log.d(TAG, "result:" + result);
         copyToCache(this, filename);
         File dex = new File(this.getFilesDir().getAbsolutePath(), filename);
         if(dex.exists()){

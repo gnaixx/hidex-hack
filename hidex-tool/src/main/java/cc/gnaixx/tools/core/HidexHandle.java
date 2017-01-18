@@ -80,7 +80,7 @@ public class HidexHandle {
 
     //隐藏整个类的定义
     private void hackCdOff(ClassDefs.ClassDef[] classDefItem, List<String> conf) {
-        seekHP(classDefItem, conf, new SeekCallBack() {
+        seekHP(classDefItem, conf, Constants.HACK_CLASS, new SeekCallBack() {
             @Override
             public void doHack(ClassDefs.ClassDef classDefItem, List<HackPoint> hackPoints) {
                 HackPoint point = classDefItem.classDataOff.clone(); //获取类定义的偏移
@@ -92,7 +92,7 @@ public class HidexHandle {
 
     //隐藏静态变量初始化
     private void hackSfVal(ClassDefs.ClassDef[] classDefItem, List<String> conf) {
-        seekHP(classDefItem, conf, new SeekCallBack() {
+        seekHP(classDefItem, conf, Constants.HACK_SF_VAL, new SeekCallBack() {
             @Override
             public void doHack(ClassDefs.ClassDef classDefItem, List<HackPoint> hackPoints) {
                 HackPoint point = classDefItem.staticValueOff.clone();  //获取静态变量数据偏移
@@ -104,7 +104,7 @@ public class HidexHandle {
 
     //隐藏静态变量个数
     private void hackMeSize(ClassDefs.ClassDef[] classDefItem, List<String> conf){
-        seekHP(classDefItem, conf, new SeekCallBack() {
+        seekHP(classDefItem, conf, Constants.HACK_ME_SIZE, new SeekCallBack() {
             @Override
             public void doHack(ClassDefs.ClassDef classDefItem, List<HackPoint> hackPoints) {
                 HackPoint directPoint = classDefItem.classData.directMethodsSize.clone(); //同时需改虚函数和直接函数
@@ -119,7 +119,7 @@ public class HidexHandle {
 
     //重复函数定义
     private void hackMeDef(ClassDefs.ClassDef[] classDefItem, List<String> conf){
-        seekHP(classDefItem, conf, new SeekCallBack() {
+        seekHP(classDefItem, conf, Constants.HACK_ME_DEF, new SeekCallBack() {
             @Override
             public void doHack(ClassDefs.ClassDef classDefItem, List<HackPoint> hackPoints) {
                 /*int directMeSize = classDefItem.classData.directMethodsSize.value;
@@ -151,7 +151,7 @@ public class HidexHandle {
     }
 
     //查找配置文件所在类位置
-    private void seekHP(ClassDefs.ClassDef[] classDefItem, List<String> conf, SeekCallBack callBack){
+    private void seekHP(ClassDefs.ClassDef[] classDefItem, List<String> conf, String type, SeekCallBack callBack){
         if (conf == null) {
             return;
         }
@@ -163,7 +163,7 @@ public class HidexHandle {
                 className = pathToPackages(className); //获取类名
                 if (className.equals(classname)) {
                     callBack.doHack(classDefItem[j], this.hackPoints); //具体操作
-                    log("hack_field", conf.get(i));
+                    log(type, conf.get(i));
                     isDef = true;
                 }
             }

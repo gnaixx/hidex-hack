@@ -1,5 +1,7 @@
 package cc.gnaixx.hidex_libs.tools;
 
+import android.content.res.AssetManager;
+
 /**
  * 名称: NativeHelper
  * 描述:
@@ -14,5 +16,5 @@ public class NativeHelper {
         System.loadLibrary("native-lib");
     }
 
-    public static native void redex();
+    public static native int redex(AssetManager asset, String filename, String path);
 }

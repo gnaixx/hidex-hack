@@ -62,7 +62,7 @@ public class FileUtil {
             while ((line = br.readLine()) != null) {
                 if (!line.startsWith("#") && !line.equals("")) {
                     String conf[] = line.split(":");
-                    if(conf.length != 2){
+                    if (conf.length != 2) {
                         log("warning", "error config at :" + line);
                         System.exit(0);
                     }
@@ -85,5 +85,19 @@ public class FileUtil {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static boolean checkFile(String filename) {
+        File file = new File(filename);
+        if (file.exists()) {
+            return true;
+        }
+        return false;
+    }
+
+    public static String addPrefix(String input, String prefix) {
+        int index = input.lastIndexOf(File.separator);
+        String output = input.substring(0, index + 1) + prefix + "-" + input.substring(index + 1, input.length());
+        return output;
     }
 }
