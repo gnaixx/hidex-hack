@@ -1,4 +1,4 @@
-package cc.gnaixx.tools.tools;
+package cc.gnaixx.tools.util;
 
 import cc.gnaixx.tools.model.Uleb128;
 

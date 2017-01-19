@@ -1,4 +1,4 @@
-package cc.gnaixx.tools.tools;
+package cc.gnaixx.tools.util;
 
 /**
  * 名称: Log

@@ -3,14 +3,14 @@ package cc.gnaixx.tools.model.dex;
 
 import com.alibaba.fastjson.JSONObject;
 
-import cc.gnaixx.tools.tools.Reader;
-import cc.gnaixx.tools.tools.Writer;
+import cc.gnaixx.tools.util.Reader;
+import cc.gnaixx.tools.util.Writer;
 
 import static cc.gnaixx.tools.model.DexCon.MAGIC_LEN;
 import static cc.gnaixx.tools.model.DexCon.SIGNATURE_LEN;
-import static cc.gnaixx.tools.tools.Trans.binToHex;
-import static cc.gnaixx.tools.tools.Trans.binToStr;
-import static cc.gnaixx.tools.tools.Trans.intToHex;
+import static cc.gnaixx.tools.util.Trans.binToHex;
+import static cc.gnaixx.tools.util.Trans.binToStr;
+import static cc.gnaixx.tools.util.Trans.intToHex;
 
 /**
  * 名称: header

@@ -89,6 +89,7 @@ function copy_dex(){
     fi
     rm ${assets_dir}/*.dex
     cp -r output/*.dex ${assets_dir}
+    rm ${assets_dir}/redex-**.dex
 }
 
 #####################################

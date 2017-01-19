@@ -6,7 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 
 import cc.gnaixx.tools.model.dex.cladef.ClassDefs;
 
-import static cc.gnaixx.tools.tools.BufferUtil.subdex;
+import static cc.gnaixx.tools.util.BufferUtil.subdex;
 
 
 /**

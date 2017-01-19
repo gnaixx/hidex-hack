@@ -4,10 +4,10 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import cc.gnaixx.tools.model.Uleb128;
-import cc.gnaixx.tools.tools.Reader;
+import cc.gnaixx.tools.util.Reader;
 
-import static cc.gnaixx.tools.tools.BufferUtil.getUleb128;
-import static cc.gnaixx.tools.tools.BufferUtil.subdex;
+import static cc.gnaixx.tools.util.BufferUtil.getUleb128;
+import static cc.gnaixx.tools.util.BufferUtil.subdex;
 
 /**
  * 名称: StringIds

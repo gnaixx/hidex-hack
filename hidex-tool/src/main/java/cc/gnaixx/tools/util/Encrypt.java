@@ -1,4 +1,4 @@
-package cc.gnaixx.tools.tools;
+package cc.gnaixx.tools.util;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -14,7 +14,7 @@ import java.util.zip.Adler32;
 
 public class Encrypt {
     //计算checksum
-    public static byte[] checksum(byte[] data, int off) {
+    public static byte[] checksum_bin(byte[] data, int off) {
         int len = data.length - off;
         Adler32 adler32 = new Adler32();
         adler32.reset();
@@ -26,6 +26,15 @@ public class Encrypt {
                 (byte) (checksum >> 16),
                 (byte) (checksum >> 24)};
         return checksumbs;
+    }
+
+    public static int checksum(byte[] data, int off) {
+        int len = data.length - off;
+        Adler32 adler32 = new Adler32();
+        adler32.reset();
+        adler32.update(data, off, len);
+        long checksum = adler32.getValue();
+        return (int)checksum;
     }
 
 

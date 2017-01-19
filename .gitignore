@@ -1,13 +1,3 @@
-.gradle
-/local.properties
-/.idea/workspace.xml
-/.idea/libraries
-.DS_Store
-/build
-/captures
-output
-!output/hidex.conf
-
 ### Android template
 # Built application files
 *.apk
@@ -55,3 +45,6 @@ captures/
 # External native build folder generated in Android Studio 2.2 and later
 .externalNativeBuild
 
+#build file
+output
+!output/hidex.conf

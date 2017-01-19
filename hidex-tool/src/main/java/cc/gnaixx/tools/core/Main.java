@@ -1,18 +1,17 @@
 package cc.gnaixx.tools.core;
 
-import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-import cc.gnaixx.tools.tools.FileUtil;
+import cc.gnaixx.tools.util.FileUtil;
 
-import static cc.gnaixx.tools.tools.Constants.CONFIG_FILE;
-import static cc.gnaixx.tools.tools.Constants.HIDEX_FILE;
-import static cc.gnaixx.tools.tools.Constants.REDEX_FILE;
-import static cc.gnaixx.tools.tools.Constants.INPUT_FILE;
-import static cc.gnaixx.tools.tools.FileUtil.addPrefix;
-import static cc.gnaixx.tools.tools.FileUtil.checkFile;
+import static cc.gnaixx.tools.util.Constants.CONFIG_FILE;
+import static cc.gnaixx.tools.util.Constants.HIDEX_FILE;
+import static cc.gnaixx.tools.util.Constants.REDEX_FILE;
+import static cc.gnaixx.tools.util.Constants.INPUT_FILE;
+import static cc.gnaixx.tools.util.FileUtil.addPrefix;
+import static cc.gnaixx.tools.util.FileUtil.checkFile;
 
 /**
  * 名称: Main

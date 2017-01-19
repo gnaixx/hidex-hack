@@ -9,36 +9,54 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="cc.gnaixx.hidex_hack.MainActivity">
+    tools:context="cc.gnaixx.hidex_hack.activity.MainActivity">
 
 
     <Button
-        android:id="@+id/btn_hidex"
+        android:id="@+id/btn_source"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:text="hidex"/>
-
-    <Button
-        android:id="@+id/btn_sampl"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/btn_hidex"
-        android:layout_marginEnd="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_toLeftOf="@+id/btn_hidex"
-        android:layout_toStartOf="@+id/btn_hidex"
-        android:text="sampl"/>
+        android:text="source"/>
 
     <Button
         android:id="@+id/btn_redex"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/btn_hidex"
+        android:layout_alignBottom="@+id/btn_source"
+        android:layout_marginEnd="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_toLeftOf="@+id/btn_source"
+        android:layout_toStartOf="@+id/btn_source"
+        android:text="redex"/>
+
+    <Button
+        android:id="@+id/btn_target"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/btn_source"
         android:layout_marginLeft="10dp"
         android:layout_marginStart="10dp"
-        android:layout_toEndOf="@+id/btn_hidex"
-        android:layout_toRightOf="@+id/btn_hidex"
-        android:text="redex"/>
+        android:layout_toEndOf="@+id/btn_source"
+        android:layout_toRightOf="@+id/btn_source"
+        android:text="target"/>
+
+    <Button
+        android:id="@+id/btn_hash"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/btn_redex"
+        android:layout_alignStart="@+id/btn_redex"
+        android:layout_below="@+id/btn_redex"
+        android:layout_marginTop="10dp"
+        android:text="hash"/>
+
+    <TextView
+        android:id="@+id/tv_msg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/btn_hash"
+        android:layout_marginTop="10dp"
+        android:text="TextView"/>
 </RelativeLayout>

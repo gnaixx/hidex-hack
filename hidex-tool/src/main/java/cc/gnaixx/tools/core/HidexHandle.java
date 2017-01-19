@@ -8,22 +8,22 @@ import cc.gnaixx.tools.model.dex.DexFile;
 import cc.gnaixx.tools.model.dex.Header;
 import cc.gnaixx.tools.model.dex.cladef.ClassDefs;
 import cc.gnaixx.tools.model.HackPoint;
-import cc.gnaixx.tools.tools.BufferUtil;
-import cc.gnaixx.tools.tools.Constants;
+import cc.gnaixx.tools.util.BufferUtil;
+import cc.gnaixx.tools.util.Constants;
 
 import static cc.gnaixx.tools.model.DexCon.CHECKSUM_LEN;
 import static cc.gnaixx.tools.model.DexCon.CHECKSUM_OFF;
 import static cc.gnaixx.tools.model.DexCon.SIGNATURE_LEN;
 import static cc.gnaixx.tools.model.DexCon.SIGNATURE_OFF;
-import static cc.gnaixx.tools.tools.Encrypt.checksum;
-import static cc.gnaixx.tools.tools.Encrypt.signature;
-import static cc.gnaixx.tools.tools.Log.log;
-import static cc.gnaixx.tools.tools.BufferUtil.replace;
-import static cc.gnaixx.tools.tools.Trans.binToHex;
-import static cc.gnaixx.tools.tools.Trans.binToHex_Lit;
-import static cc.gnaixx.tools.tools.Trans.hackpToBin;
-import static cc.gnaixx.tools.tools.Trans.intToHex;
-import static cc.gnaixx.tools.tools.Trans.pathToPackages;
+import static cc.gnaixx.tools.util.Encrypt.checksum;
+import static cc.gnaixx.tools.util.Encrypt.signature;
+import static cc.gnaixx.tools.util.Log.log;
+import static cc.gnaixx.tools.util.BufferUtil.replace;
+import static cc.gnaixx.tools.util.Trans.binToHex;
+import static cc.gnaixx.tools.util.Trans.binToHex_Lit;
+import static cc.gnaixx.tools.util.Trans.hackpToBin;
+import static cc.gnaixx.tools.util.Trans.intToHex;
+import static cc.gnaixx.tools.util.Trans.pathToPackages;
 
 /**
  * 名称: HidexHandle
@@ -54,9 +54,8 @@ public class HidexHandle {
         log("config", config.toString());
 
         hackClassDef();
-        hackHeader();   //修改头部信息，必须放在最后
         appendHP();     //添加hackpoint
-        checkout();     //修复校验
+        hackHeader();   //修改头部信息，必须放在最后
         return dexBuff;
     }
 
@@ -102,7 +101,7 @@ public class HidexHandle {
         });
     }
 
-    //隐藏静态变量个数
+    //隐藏函数定义
     private void hackMeSize(ClassDefs.ClassDef[] classDefItem, List<String> conf){
         seekHP(classDefItem, conf, Constants.HACK_ME_SIZE, new SeekCallBack() {
             @Override
@@ -182,6 +181,18 @@ public class HidexHandle {
     private void hackHeader() {
         Header header = dexFile.header;
         header.fileSize = this.dexBuff.length;  //修改文件长度
+        //修复 signature 校验
+        log("old_signature", binToHex(dexFile.header.signature));
+        byte[] signature = signature(dexBuff, SIGNATURE_LEN + SIGNATURE_OFF);
+        header.signature = signature;
+        log("new_signature", binToHex(signature));
+
+        //修复 checksum 校验
+        log("old_checksum", intToHex(dexFile.header.checksum));
+        int checksum = checksum(dexBuff, CHECKSUM_LEN + CHECKSUM_OFF);
+        header.checksum = checksum;
+        log("new_checksum", intToHex(checksum));
+
         header.write(dexBuff);
     }
 
@@ -193,19 +204,5 @@ public class HidexHandle {
             pointsBuff = BufferUtil.append(pointsBuff, pointBuff, pointBuff.length);
         }
         dexBuff = BufferUtil.append(dexBuff, pointsBuff, pointsBuff.length);
-    }
-
-    //修复 checksum signature 校验
-    private void checkout() {
-        log("old_signature", binToHex(dexFile.header.signature));
-        log("old_checksum", intToHex(dexFile.header.checksum));
-
-        byte[] signature = signature(dexBuff, SIGNATURE_LEN + SIGNATURE_OFF);
-        replace(dexBuff, signature, SIGNATURE_OFF, SIGNATURE_LEN);
-        byte[] checksum = checksum(dexBuff, CHECKSUM_LEN + CHECKSUM_OFF);
-        replace(dexBuff, checksum, CHECKSUM_OFF, CHECKSUM_LEN);
-
-        log("new_signature", binToHex(signature));
-        log("new_checksum", binToHex_Lit(checksum));
     }
 }

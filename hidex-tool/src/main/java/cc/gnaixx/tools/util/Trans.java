@@ -1,11 +1,11 @@
-package cc.gnaixx.tools.tools;
+package cc.gnaixx.tools.util;
 
 import java.nio.ByteBuffer;
 
 import cc.gnaixx.tools.model.HackPoint;
 import cc.gnaixx.tools.model.Uleb128;
 
-import static cc.gnaixx.tools.tools.Log.log;
+import static cc.gnaixx.tools.util.Log.log;
 
 /**
  * 名称: Trans

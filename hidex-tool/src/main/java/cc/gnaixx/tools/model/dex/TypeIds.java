@@ -3,7 +3,7 @@ package cc.gnaixx.tools.model.dex;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
-import cc.gnaixx.tools.tools.Reader;
+import cc.gnaixx.tools.util.Reader;
 
 /**
  * 名称: TypeIds

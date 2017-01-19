@@ -141,7 +141,7 @@ public class EntranceImpl implements Entrance {
             json.put("RELEASE", RELEASE);
             json.put("FLAG", FLAG);
             json.put("COUNT", COUNT);
-            json.put("NAME", NAME);
+            json.put("NAME", new String(NAME));
         } catch (JSONException e) {
             e.printStackTrace();
         }

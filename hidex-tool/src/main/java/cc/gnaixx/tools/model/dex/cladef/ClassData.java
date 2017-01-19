@@ -4,9 +4,9 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import cc.gnaixx.tools.model.HackPoint;
-import cc.gnaixx.tools.tools.Reader;
-import cc.gnaixx.tools.tools.Trans;
-import cc.gnaixx.tools.tools.Writer;
+import cc.gnaixx.tools.util.Reader;
+import cc.gnaixx.tools.util.Trans;
+import cc.gnaixx.tools.util.Writer;
 
 /**
  * 名称: ClassData

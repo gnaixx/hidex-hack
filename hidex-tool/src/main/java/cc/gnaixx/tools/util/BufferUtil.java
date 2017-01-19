@@ -1,4 +1,4 @@
-package cc.gnaixx.tools.tools;
+package cc.gnaixx.tools.util;
 
 import java.nio.ByteBuffer;
 

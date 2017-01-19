@@ -3,8 +3,8 @@ package cc.gnaixx.tools.model.dex.cladef;
 import com.alibaba.fastjson.JSONObject;
 
 import cc.gnaixx.tools.model.Uleb128;
-import cc.gnaixx.tools.tools.Reader;
-import cc.gnaixx.tools.tools.Writer;
+import cc.gnaixx.tools.util.Reader;
+import cc.gnaixx.tools.util.Writer;
 
 /**
  * 名称: EncodeField

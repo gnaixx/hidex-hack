@@ -3,9 +3,9 @@ package cc.gnaixx.tools.model.dex;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
-import cc.gnaixx.tools.tools.Reader;
+import cc.gnaixx.tools.util.Reader;
 
-import static cc.gnaixx.tools.tools.Trans.charToInt;
+import static cc.gnaixx.tools.util.Trans.charToInt;
 
 /**
  * 名称: ProtoIds
