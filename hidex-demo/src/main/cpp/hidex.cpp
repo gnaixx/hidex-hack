@@ -4,6 +4,7 @@
 #include <android/log.h>
 #include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
+#include "sha1.h"
 
 #define LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG, "HIDEX_NDK", __VA_ARGS__)
 #define NELEM(x) ((int) (sizeof(x) / sizeof((x)[0])))
@@ -16,6 +17,7 @@
 #define UINT_LEN 0x0004
 #define USHORT_LEN = 0x0002
 #define MAP_OFF_OFF (MAGIC_LEN + UINT_LEN + SIGNATURE_LEN + UINT_LEN * 5)
+#define FILE_SIZE_OFF (MAGIC_LEN + UINT_LEN + SIGNATURE_LEN)
 #define MAP_ITEM_LEN 0x000C
 
 
@@ -47,7 +49,13 @@ void initHP(HackPoint* hackPoints, char* hackInfo, uint size){
         hackPoints[i].type = readUint(hackInfo, i * sizeof(HackPoint));
         hackPoints[i].offset = readUint(hackInfo, i * sizeof(HackPoint) + UINT_LEN);
         hackPoints[i].value = readUint(hackInfo, i * sizeof(HackPoint) + UINT_LEN + UINT_LEN);
-        LOGD("HackPoint[%d]{type:%d, offset:%d, vaule:%d}", i, hackPoints[i].type, hackPoints[i].offset, hackPoints[i].value);
+        LOGD("hackPoint[%d]: {type:%d, offset:%d, vaule:%d}", i, hackPoints[i].type, hackPoints[i].offset, hackPoints[i].value);
+    }
+}
+
+void write(char* buffer, char* val, uint off, uint valLen){
+    for(int i=0; i<valLen; i++){
+        buffer[off + i] = val[i];
     }
 }
 
@@ -67,15 +75,14 @@ void writeUshort(char* buffer, uint off, uint value){
 
 //uint to uleb128
 char* uintToUleb128(uint val, uint* uleb128Len){
-    char* uleb128 = new char[4];
-    uint maxLen = 4;
-    uint bk = val;
+    char* uleb128 = (char *) malloc(sizeof(char) * UINT_LEN);
+    uint maxLen = UINT_LEN;
     uint len = 0;
-    for(int i=0; i<maxLen; i++){
+    for(uint i=0; i<maxLen; i++){
         len = i + 1;
-        uleb128[i] += (val & 0x7F);
+        uleb128[i] = (char) (val & 0x7F);
         if(val > (0x7F)) {
-            uleb128[i] = (char)(uleb128[i] | (0x01 << 7));
+            uleb128[i] += (char)(uleb128[i] | (0x01 << 7));
         }
         val = val >> 7;
         if(val <= 0) break;
@@ -94,8 +101,7 @@ void writeUleb128(char* buffer, uint off, uint value){
 }
 
 //修复hackPoint
-void recovery(char* target, HackPoint hackPoint){
-
+void recoverHP(char *target, HackPoint hackPoint){
     switch (hackPoint.type){
         case 0x01: //uint
             writeUint(target, hackPoint.offset, hackPoint.value);
@@ -109,17 +115,94 @@ void recovery(char* target, HackPoint hackPoint){
     }
 }
 
+// byte to hex
+uint8_t* binToHex(uint8_t *buff, int len) {
+    uint8_t* hex = (uint8_t *) malloc(sizeof(uint8_t) * len);
+    for (int i = 0; i < len; i++) {
+        uint8_t hex1, hex2;
+        uint val = buff[i];
+        uint v1 = val / 16;
+        uint v2 = val % 16;
+        if (v1 >= 0 && v1 <= 9) {
+            hex1 = (uint8_t) (0x30 + v1);
+        } else{
+            hex1 = (uint8_t) (0x37 + v1);
+        }
+        if (v2 >= 0 && v2 <= 9) {
+            hex2 = (uint8_t) (0x30 + v2);
+        } else{
+            hex2 = (uint8_t) (0x37 + v2);
+        }
+        hex[i * 2] = hex1;
+        hex[i * 2 + 1] = hex2;
+    }
+    return hex;
+}
+
+//int to hex Little Endian
+uint8_t* intToHex(uint val){
+    uint8_t bin[UINT_LEN] = {
+            (uint8_t) ((val >> 24) & 0xFF),
+            (uint8_t) ((val >> 16) & 0xFF),
+            (uint8_t) ((val >> 8) & 0xFF),
+            (uint8_t) ((val >> 0) & 0xFF),
+    };
+    return binToHex(bin, UINT_LEN);
+}
+
+
+//计算checksum adler32
+uint adler32(char *buff, uint off, uint len) {
+    const int MOD_ADLER = 65521;
+    uint a = 1, b = 0;
+    uint index;
+    for (index = 0; index < len; ++index) {
+        a = (a + buff[index + off]) % MOD_ADLER;
+        b = (b + a) % MOD_ADLER;
+    }
+    return (b << 16) | a;
+}
+
+//计算signature sha1
+void sha1(uint8_t* source, uint off, uint len, uint8_t* hash){
+    uint8_t * buff = (uint8_t *) malloc(sizeof(uint8_t) * len);
+    for(int i=0; i<len; i++){
+        buff[i] = source[off + i];
+    }
+    SHA1_CTX ctx;
+    SHA1Init(&ctx);
+    SHA1Update(&ctx, buff, len);
+    SHA1Final(hash, &ctx);
+}
+
+
+//修复header
+void recoverHeader(char *target, uint targetLen) {
+    writeUint(target, FILE_SIZE_OFF, targetLen); //修复文件长度
+    LOGD("Recover fileSize: {file_size:%d}", targetLen);
+
+    uint8_t signature[SIGNATURE_LEN]; //修复signature
+    sha1((uint8_t *) target, (SIGNATURE_OFF + SIGNATURE_LEN), (targetLen - SIGNATURE_OFF - SIGNATURE_LEN), signature);
+    write(target, (char *) signature, SIGNATURE_OFF, SIGNATURE_LEN);
+    LOGD("Recover signature: {signature:%s}", binToHex(signature, SIGNATURE_LEN));
+
+    uint checksum = adler32(target, (CHECKSUM_OFF + CHECKSUM_LEN), (targetLen - CHECKSUM_OFF - CHECKSUM_LEN)); //修复checksum
+    writeUint(target, CHECKSUM_OFF, checksum);
+    LOGD("Recover checksum: {integer:%d, checksum:%s}", checksum, intToHex(checksum));
+}
+
 
 //解密dex
 void recode(char* source, uint sourceLen, char* target, uint* targetLen){
     uint mapOff = readUint(source, MAP_OFF_OFF); //获取map_off
     uint mapSize = readUint(source, mapOff); //获取map_size
-    LOGD("map_off:%d, map_size:%d", mapOff, mapSize);
+    LOGD("mapInfo: {map_off:%d, map_size:%d}", mapOff, mapSize);
 
     uint hackInfoOff = mapOff + UINT_LEN + (mapSize * MAP_ITEM_LEN); //定位hackInfo位置
     uint hackInfoLen = sourceLen - hackInfoOff; //hackInfo长度
     char* hackInfo = (char *) malloc(hackInfoLen);
     memcpy(hackInfo, source + hackInfoOff, hackInfoLen); //复制hackInfo
+    LOGD("hackInfo: {hackInfo_off:%d, hackInfo_len}", hackInfoOff, hackInfoLen);
 
     uint hackPointSize = hackInfoLen / sizeof(HackPoint); //获取hackPoint结构体
     HackPoint* hackPoints = (HackPoint *) malloc(sizeof(HackPoint) * hackPointSize);
@@ -130,9 +213,12 @@ void recode(char* source, uint sourceLen, char* target, uint* targetLen){
 
     //恢复数据
     for(int i=0; i<hackPointSize; i++){
-        recovery(target, hackPoints[i]);
+        recoverHP(target, hackPoints[i]);
     }
+    LOGD("Recover HackPoint success");
 
+    //修复hearder
+    recoverHeader(target, *targetLen);
 
     free(hackInfo);
     free(hackPoints);

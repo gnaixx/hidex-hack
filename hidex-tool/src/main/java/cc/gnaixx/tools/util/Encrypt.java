@@ -4,6 +4,9 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.zip.Adler32;
 
+import static cc.gnaixx.tools.model.DexCon.UINT_LEN;
+import static cc.gnaixx.tools.util.Trans.intToBin_Lit;
+
 /**
  * 名称: Encrypt
  * 描述:
@@ -35,6 +38,19 @@ public class Encrypt {
         adler32.update(data, off, len);
         long checksum = adler32.getValue();
         return (int)checksum;
+    }
+
+    public static int checksum_Lit(byte[] data, int off) {
+        byte[] bin = checksum_bin(data, off);
+        int value = 0;
+        for (int i = 0; i < UINT_LEN; i++) {
+            int seg = bin[i];
+            if (seg < 0) {
+                seg = 256 + seg;
+            }
+            value += seg << (8 * i);
+        }
+        return value;
     }
 
 

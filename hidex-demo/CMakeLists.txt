@@ -1,7 +1,7 @@
 
 cmake_minimum_required(VERSION 3.4.1)
 
-add_library(hidex SHARED src/main/cpp/hidex.cpp)
+add_library(hidex SHARED src/main/cpp/hidex.cpp src/main/cpp/sha1.cpp)
 
 find_library(log-lib log)
 

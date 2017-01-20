@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import cc.gnaixx.tools.model.HackPoint;
 import cc.gnaixx.tools.model.dex.DexFile;
 import cc.gnaixx.tools.model.dex.Header;
 import cc.gnaixx.tools.model.dex.cladef.ClassDefs;
-import cc.gnaixx.tools.model.HackPoint;
 import cc.gnaixx.tools.util.BufferUtil;
 import cc.gnaixx.tools.util.Constants;
 
@@ -15,12 +15,10 @@ import static cc.gnaixx.tools.model.DexCon.CHECKSUM_LEN;
 import static cc.gnaixx.tools.model.DexCon.CHECKSUM_OFF;
 import static cc.gnaixx.tools.model.DexCon.SIGNATURE_LEN;
 import static cc.gnaixx.tools.model.DexCon.SIGNATURE_OFF;
-import static cc.gnaixx.tools.util.Encrypt.checksum;
+import static cc.gnaixx.tools.util.Encrypt.checksum_Lit;
 import static cc.gnaixx.tools.util.Encrypt.signature;
 import static cc.gnaixx.tools.util.Log.log;
-import static cc.gnaixx.tools.util.BufferUtil.replace;
 import static cc.gnaixx.tools.util.Trans.binToHex;
-import static cc.gnaixx.tools.util.Trans.binToHex_Lit;
 import static cc.gnaixx.tools.util.Trans.hackpToBin;
 import static cc.gnaixx.tools.util.Trans.intToHex;
 import static cc.gnaixx.tools.util.Trans.pathToPackages;
@@ -179,17 +177,21 @@ public class HidexHandle {
 
     //修改header
     private void hackHeader() {
+        //修改文件长度
         Header header = dexFile.header;
-        header.fileSize = this.dexBuff.length;  //修改文件长度
+        header.fileSize = this.dexBuff.length;
+        header.write(dexBuff); //需要先修改文件长度，才能计算signature checksum
+
         //修复 signature 校验
         log("old_signature", binToHex(dexFile.header.signature));
         byte[] signature = signature(dexBuff, SIGNATURE_LEN + SIGNATURE_OFF);
         header.signature = signature;
         log("new_signature", binToHex(signature));
+        header.write(dexBuff); //需要先写sinature,才能计算checksum，凸
 
         //修复 checksum 校验
         log("old_checksum", intToHex(dexFile.header.checksum));
-        int checksum = checksum(dexBuff, CHECKSUM_LEN + CHECKSUM_OFF);
+        int checksum = checksum_Lit(dexBuff, CHECKSUM_LEN + CHECKSUM_OFF);
         header.checksum = checksum;
         log("new_checksum", intToHex(checksum));
 

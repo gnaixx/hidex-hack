@@ -129,14 +129,14 @@ public class Trans {
     }
 
     public static Uleb128 intToUleb128(int val) {
-        byte[] realVal = new byte[]{0x00, 0x00, 0x00, 0x00};
+        byte[] realVal = new byte[]{0x00, 0x00, 0x00, 0x00}; //int 最大长度为4
         int bk = val;
         int len = 0;
         for (int i = 0; i < realVal.length; i++) {
-            len = i + 1;
-            realVal[i] += (val & 0x7F);
+            len = i + 1; //最少长度为1
+            realVal[i] = (byte) (val & 0x7F); //获取低7位的值
             if (val > (0x7F)) {
-                realVal[i] = (byte) (realVal[i] | (0x01 << 7));
+                realVal[i] += (byte) (realVal[i] | (0x01 << 7)); //高位为1 加上去
             }
             val = val >> 7;
             if (val <= 0) break;

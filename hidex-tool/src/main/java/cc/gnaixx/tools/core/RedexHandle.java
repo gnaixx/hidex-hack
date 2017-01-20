@@ -19,7 +19,6 @@ import static cc.gnaixx.tools.model.DexCon.UINT_LEN;
 import static cc.gnaixx.tools.util.BufferUtil.getUint;
 import static cc.gnaixx.tools.util.BufferUtil.replace;
 import static cc.gnaixx.tools.util.BufferUtil.subdex;
-import static cc.gnaixx.tools.util.Encrypt.checksum;
 import static cc.gnaixx.tools.util.Encrypt.checksum_bin;
 import static cc.gnaixx.tools.util.Encrypt.signature;
 import static cc.gnaixx.tools.util.Log.log;
@@ -71,6 +70,7 @@ public class RedexHandle {
         byte[] checksum = checksum_bin(dexBuff, CHECKSUM_LEN + CHECKSUM_OFF); //修复checksum校验
         replace(dexBuff, checksum, CHECKSUM_OFF, CHECKSUM_LEN);
 
+        log("fileSize", dexLen);
         log("signature", binToHex(signature));
         log("checksum", binToHex_Lit(checksum));
         return this.dexBuff;

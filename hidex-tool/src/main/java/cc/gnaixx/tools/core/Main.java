@@ -10,8 +10,11 @@ import static cc.gnaixx.tools.util.Constants.CONFIG_FILE;
 import static cc.gnaixx.tools.util.Constants.HIDEX_FILE;
 import static cc.gnaixx.tools.util.Constants.REDEX_FILE;
 import static cc.gnaixx.tools.util.Constants.INPUT_FILE;
+import static cc.gnaixx.tools.util.Encrypt.checksum;
+import static cc.gnaixx.tools.util.Encrypt.signature;
 import static cc.gnaixx.tools.util.FileUtil.addPrefix;
 import static cc.gnaixx.tools.util.FileUtil.checkFile;
+import static cc.gnaixx.tools.util.Trans.binToHex;
 
 /**
  * 名称: Main
@@ -27,6 +30,10 @@ public class Main {
 
     //0.action 1.input 2.config
     public static void main(String[] args) {
+        byte[] data = new byte[]{0x49, 0x50};
+        System.out.println(checksum(data, 0));
+        System.out.println(binToHex(signature(data, 0)));
+
         String action = ACTION_HIDEX;
         if (args != null && args.length != 0) {
             action = args[0];
