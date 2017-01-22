@@ -1,4 +1,4 @@
-package cc.gnaixx.hidex_hack.config;
+package cc.gnaixx.hidex_hack.common;
 
 /**
  * 名称: constant

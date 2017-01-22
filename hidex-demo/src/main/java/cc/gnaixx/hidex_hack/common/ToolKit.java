@@ -1,6 +1,7 @@
 package cc.gnaixx.hidex_hack.common;
 
 import android.content.Context;
+import android.util.Log;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -11,6 +12,8 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+
+import static android.content.ContentValues.TAG;
 
 /**
  * 名称: FileUtil
@@ -23,12 +26,11 @@ import java.security.NoSuchAlgorithmException;
 public class ToolKit {
 
     //将文件复制到cache
-    public static void copyToCache(Context context, String filename) {
-        String cachePath = context.getFilesDir().getAbsolutePath();
+    public static void copyFromAssets(Context context, String path, String filename) {
         try {
             byte[] data = readAssets(context, filename);
 
-            String dexPath = cachePath + File.separator + new String(filename);
+            String dexPath = path + File.separator + new String(filename);
             FileOutputStream fos = new FileOutputStream(dexPath);
             BufferedOutputStream outputStream = new BufferedOutputStream(fos);
             outputStream.write(data);
@@ -54,8 +56,12 @@ public class ToolKit {
     }
 
     //读取文件
-    public static byte[] readFiles(Context context, String filename){
-        File file = new File(context.getFilesDir(), filename);
+    public static byte[] readFiles(String path, String filename){
+        File file = new File(path, filename);
+        if(!file.exists()){
+            Log.e(TAG, path + "/" + filename + "not exist");
+            return null;
+        }
         try {
             FileInputStream fis = new FileInputStream(file);
             int len = fis.available();

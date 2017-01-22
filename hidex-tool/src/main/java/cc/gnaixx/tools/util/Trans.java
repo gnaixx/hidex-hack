@@ -136,7 +136,7 @@ public class Trans {
             len = i + 1; //最少长度为1
             realVal[i] = (byte) (val & 0x7F); //获取低7位的值
             if (val > (0x7F)) {
-                realVal[i] += (byte) (realVal[i] | (0x01 << 7)); //高位为1 加上去
+                realVal[i] |= 0x80; //高位为1 加上去
             }
             val = val >> 7;
             if (val <= 0) break;

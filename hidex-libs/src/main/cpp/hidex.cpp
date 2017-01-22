@@ -46,9 +46,9 @@ uint readUint(char* buffer, uint off){
 //初始化
 void initHP(HackPoint* hackPoints, char* hackInfo, uint size){
     for(int i=0; i<size; i++){
-        hackPoints[i].type = readUint(hackInfo, i * sizeof(HackPoint));
+        hackPoints[i].type   = readUint(hackInfo, i * sizeof(HackPoint));
         hackPoints[i].offset = readUint(hackInfo, i * sizeof(HackPoint) + UINT_LEN);
-        hackPoints[i].value = readUint(hackInfo, i * sizeof(HackPoint) + UINT_LEN + UINT_LEN);
+        hackPoints[i].value  = readUint(hackInfo, i * sizeof(HackPoint) + UINT_LEN + UINT_LEN);
         LOGD("hackPoint[%d]: {type:%d, offset:%d, vaule:%d}", i, hackPoints[i].type, hackPoints[i].offset, hackPoints[i].value);
     }
 }
@@ -61,43 +61,43 @@ void write(char* buffer, char* val, uint off, uint valLen){
 
 //写uint数据
 void writeUint(char* buffer, uint off, uint value){
-    buffer[off] = (char)(value & 0xFF);
-    buffer[off + 1] = (char)((value >> 8) & 0xFF);
+    buffer[off + 0] = (char)((value >> 0)  & 0xFF);
+    buffer[off + 1] = (char)((value >> 8)  & 0xFF);
     buffer[off + 2] = (char)((value >> 16) & 0xFF);
     buffer[off + 3] = (char)((value >> 24) & 0xFF);
 }
 
 //写ushort
 void writeUshort(char* buffer, uint off, uint value){
-    buffer[off] = (char)(value & 0xFF);
+    buffer[off + 0] = (char)((value >> 0) & 0xFF);
     buffer[off + 1] = (char)((value >> 8) & 0xFF);
 }
 
 //uint to uleb128
-char* uintToUleb128(uint val, uint* uleb128Len){
-    char* uleb128 = (char *) malloc(sizeof(char) * UINT_LEN);
+void uintToUleb128(uint val, uint8_t *uleb128, uint *uleb128Len) {
     uint maxLen = UINT_LEN;
     uint len = 0;
-    for(uint i=0; i<maxLen; i++){
-        len = i + 1;
-        uleb128[i] = (char) (val & 0x7F);
-        if(val > (0x7F)) {
-            uleb128[i] += (char)(uleb128[i] | (0x01 << 7));
+    for (uint i = 0; i < maxLen; i++) {
+        len = i + 1; //最小长度为1
+        uleb128[i] = (uint8_t) (val & 0x7F); //写入低7位值
+        if (val > (0x7F)) { //判断是下一个字节是否有值
+            uleb128[i] |= 0x80;
         }
         val = val >> 7;
-        if(val <= 0) break;
+        if (val <= 0) break;
     }
     *uleb128Len = len;
-    return uleb128;
 }
 
 //写uleb128
 void writeUleb128(char* buffer, uint off, uint value){
+    uint8_t * uleb128 = (uint8_t *) calloc(UINT_LEN, sizeof(uint8_t));
     uint uleb128Len;
-    char* uleb128 = uintToUleb128(value, &uleb128Len);
+    uintToUleb128(value, uleb128, &uleb128Len);
     for(int i=0; i<uleb128Len; i++){
         buffer[off + i] = uleb128[i];
     }
+    free(uleb128);
 }
 
 //修复hackPoint
@@ -116,9 +116,8 @@ void recoverHP(char *target, HackPoint hackPoint){
 }
 
 // byte to hex
-uint8_t* binToHex(uint8_t *buff, int len) {
-    uint8_t* hex = (uint8_t *) malloc(sizeof(uint8_t) * len);
-    for (int i = 0; i < len; i++) {
+void binToHex(uint8_t *buff, int buffLen, uint8_t* hex) {
+    for (int i = 0; i < buffLen; i++) {
         uint8_t hex1, hex2;
         uint val = buff[i];
         uint v1 = val / 16;
@@ -136,18 +135,18 @@ uint8_t* binToHex(uint8_t *buff, int len) {
         hex[i * 2] = hex1;
         hex[i * 2 + 1] = hex2;
     }
-    return hex;
+    hex[buffLen * 2] = '\0';
 }
 
 //int to hex Little Endian
-uint8_t* intToHex(uint val){
+void intToHex(uint val, uint8_t* hex){
     uint8_t bin[UINT_LEN] = {
             (uint8_t) ((val >> 24) & 0xFF),
             (uint8_t) ((val >> 16) & 0xFF),
             (uint8_t) ((val >> 8) & 0xFF),
             (uint8_t) ((val >> 0) & 0xFF),
     };
-    return binToHex(bin, UINT_LEN);
+    binToHex(bin, UINT_LEN, hex);
 }
 
 
@@ -165,30 +164,37 @@ uint adler32(char *buff, uint off, uint len) {
 
 //计算signature sha1
 void sha1(uint8_t* source, uint off, uint len, uint8_t* hash){
-    uint8_t * buff = (uint8_t *) malloc(sizeof(uint8_t) * len);
-    for(int i=0; i<len; i++){
-        buff[i] = source[off + i];
-    }
+    uint8_t * buff = (uint8_t *) calloc(len, sizeof(uint8_t));
+    memcpy(buff, source + off, len);
     SHA1_CTX ctx;
     SHA1Init(&ctx);
     SHA1Update(&ctx, buff, len);
     SHA1Final(hash, &ctx);
+    free(buff);
 }
-
 
 //修复header
 void recoverHeader(char *target, uint targetLen) {
-    writeUint(target, FILE_SIZE_OFF, targetLen); //修复文件长度
+    //修复文件长度
+    writeUint(target, FILE_SIZE_OFF, targetLen);
     LOGD("Recover fileSize: {file_size:%d}", targetLen);
 
-    uint8_t signature[SIGNATURE_LEN]; //修复signature
+    //修复signature
+    uint8_t signature[SIGNATURE_LEN];
     sha1((uint8_t *) target, (SIGNATURE_OFF + SIGNATURE_LEN), (targetLen - SIGNATURE_OFF - SIGNATURE_LEN), signature);
     write(target, (char *) signature, SIGNATURE_OFF, SIGNATURE_LEN);
-    LOGD("Recover signature: {signature:%s}", binToHex(signature, SIGNATURE_LEN));
+    uint8_t * hex = (uint8_t *) calloc(SIGNATURE_LEN * 2 + 1, sizeof(uint8_t));//打印日志
+    binToHex(signature, SIGNATURE_LEN, hex);
+    LOGD("Recover signature: {signature:%s}", hex);
+    free(hex);
 
-    uint checksum = adler32(target, (CHECKSUM_OFF + CHECKSUM_LEN), (targetLen - CHECKSUM_OFF - CHECKSUM_LEN)); //修复checksum
+    //修复checksum
+    uint checksum = adler32(target, (CHECKSUM_OFF + CHECKSUM_LEN), (targetLen - CHECKSUM_OFF - CHECKSUM_LEN));
     writeUint(target, CHECKSUM_OFF, checksum);
-    LOGD("Recover checksum: {integer:%d, checksum:%s}", checksum, intToHex(checksum));
+    uint8_t * checksumHex = (uint8_t *) calloc(UINT_LEN * 2 + 1, sizeof(uint8_t));//打印日志
+    intToHex(checksum, checksumHex);
+    LOGD("Recover checksum: {integer:%d, checksum:%s}", checksum, checksumHex);
+    free(checksumHex);
 }
 
 
@@ -200,13 +206,13 @@ void recode(char* source, uint sourceLen, char* target, uint* targetLen){
 
     uint hackInfoOff = mapOff + UINT_LEN + (mapSize * MAP_ITEM_LEN); //定位hackInfo位置
     uint hackInfoLen = sourceLen - hackInfoOff; //hackInfo长度
-    char* hackInfo = (char *) malloc(hackInfoLen);
+    char* hackInfo = (char *) calloc(hackInfoLen, sizeof(char));
     memcpy(hackInfo, source + hackInfoOff, hackInfoLen); //复制hackInfo
     LOGD("hackInfo: {hackInfo_off:%d, hackInfo_len}", hackInfoOff, hackInfoLen);
 
     uint hackPointSize = hackInfoLen / sizeof(HackPoint); //获取hackPoint结构体
-    HackPoint* hackPoints = (HackPoint *) malloc(sizeof(HackPoint) * hackPointSize);
-    initHP(hackPoints, hackInfo, hackPointSize);
+    HackPoint* hackPoints = (HackPoint *) calloc(hackPointSize, sizeof(HackPoint));
+    initHP(hackPoints, hackInfo, hackPointSize); //将hockInfo 转化为结构体
 
     *targetLen = hackInfoOff;
     memcpy(target, source, *targetLen); //恢复原始长度
@@ -224,32 +230,47 @@ void recode(char* source, uint sourceLen, char* target, uint* targetLen){
     free(hackPoints);
 }
 
-int redex(JNIEnv* env, jclass clazz, jobject assetManager, jstring jsource, jstring jpath, jstring jtarget) {
-    LOGD("Start redex .......");
-    const char* csource = env->GetStringUTFChars(jsource, NULL);
-    const char* ctarget = env->GetStringUTFChars(jtarget, NULL);
-    const char* cpath   = env->GetStringUTFChars(jpath, NULL);
+//写文件
+int fwrite(char* buff, uint buffLen, const  char* path, const char* fileName){
+    char filePath[128];
+    sprintf(filePath, "%s/%s", path, fileName);
+    FILE* fp = fopen(filePath, "w+");
+    if (fp == NULL) {
+        LOGD("Open %s failed:[error:%d, desc:%s]", filePath, errno, strerror(errno));
+        return -1;
+    }
+    fwrite(buff, sizeof(char), buffLen, fp);
+    LOGD("Write %s success", filePath);
+    fclose(fp);
+    return 0;
+}
 
-    //############# 读取文件 #############
-    if(cpath == NULL || csource == NULL || ctarget == NULL){
+int redexFromAssets(JNIEnv* env, jclass clazz, jobject assetManager, jstring jsourceName, jstring jtargetPath, jstring jtargetName) {
+    LOGD("Start redex .......");
+    const char* csourceName = env->GetStringUTFChars(jsourceName, NULL);
+    const char* ctargetName = env->GetStringUTFChars(jtargetName, NULL);
+    const char* ctargetPath  = env->GetStringUTFChars(jtargetPath, NULL);
+
+    if(ctargetPath == NULL || csourceName == NULL || ctargetName == NULL){
         LOGD("path | source | target is NULL");
         return 1;
     }
-    LOGD("path:%s, source:%s, target:%s", cpath, csource, ctarget);
+    LOGD("sourceName:%s, targetPath:%s, targetName:%s", csourceName, ctargetPath, ctargetName);
 
+    //############# 读取文件 #############
     AAssetManager* mgr = AAssetManager_fromJava(env, assetManager);
     if(mgr == NULL){
         LOGD("AAssetManager is NULL");
         return 2;
     }
-    AAsset* asset = AAssetManager_open(mgr, csource, AASSET_MODE_UNKNOWN);
+    AAsset* asset = AAssetManager_open(mgr, csourceName, AASSET_MODE_UNKNOWN);
     if(asset == NULL){
-        LOGD("AAsset is NULL, %s not exist", csource);
+        LOGD("AAsset is NULL, %s not exist", csourceName);
         return 3;
     }
 
     off_t sourceLen = AAsset_getLength(asset);
-    char* sourceBuff = (char*)malloc(sizeof(char) * sourceLen);
+    char* sourceBuff = (char*)calloc((size_t) sourceLen, sizeof(char));
     if(AAsset_read(asset, sourceBuff, (size_t) sourceLen) < 0){
         LOGD("AAsset read failed");
         return 4;
@@ -258,43 +279,84 @@ int redex(JNIEnv* env, jclass clazz, jobject assetManager, jstring jsource, jstr
     LOGD("AAsset read success");
 
     //############# redex #############
-    char* targetBuff = (char *) malloc(sizeof(char) * sourceLen);
+    char* targetBuff = (char *) calloc((size_t) sourceLen, sizeof(char));
     uint targetLen;
     recode(sourceBuff, (uint) sourceLen, targetBuff, &targetLen);
 
     //############# 写入文件 #############
-    string strpath(cpath);
-    string strtarget(ctarget);
-    strpath += "/" + strtarget;
-    FILE* fp = fopen(strpath.c_str(), "w+");
-    if (fp == NULL) {
-        LOGD("Open %s failed:[error:%d, desc:%s]", strpath.c_str(), errno, strerror(errno));
+    if(fwrite(targetBuff, targetLen, ctargetPath, ctargetName) != 0){
         return 5;
     }
-    fwrite(targetBuff, 1, targetLen, fp);
-    LOGD("Write %s/%s success", cpath, ctarget);
-    fclose(fp);
 
     free(sourceBuff);
     free(targetBuff);
-    env->ReleaseStringUTFChars(jsource, csource);
-    env->ReleaseStringUTFChars(jtarget, ctarget);
-    env->ReleaseStringUTFChars(jpath, cpath);
+    env->ReleaseStringUTFChars(jsourceName, csourceName);
+    env->ReleaseStringUTFChars(jtargetPath, ctargetName);
+    env->ReleaseStringUTFChars(jtargetName, ctargetPath);
     LOGD("Stop redex ......");
     return 0;
 }
 
+int redexFromFile(JNIEnv* env, jclass clazz, jstring jsourcePath, jstring jsourceName, jstring jtargetPath, jstring jtargetName) {
+    LOGD("Start redex .......");
+    const char* csourceName = env->GetStringUTFChars(jsourceName, NULL);
+    const char* csourcePath = env->GetStringUTFChars(jsourcePath, NULL);
+    const char* ctargetName = env->GetStringUTFChars(jtargetName, NULL);
+    const char* ctargetPath  = env->GetStringUTFChars(jtargetPath, NULL);
+
+    if(csourcePath == NULL || csourceName == NULL || ctargetPath == NULL || ctargetName == NULL){
+        LOGD("path | source | target is NULL");
+        return 1;
+    }
+    LOGD("sourcePath:%s, sourceName:%s, targetPath:%s, targetName:%s", csourcePath, csourceName, ctargetPath, ctargetName);
+
+    //############# 读取文件 #############
+    char filePath[128];
+    sprintf(filePath, "%s/%s", csourcePath, csourceName);
+    FILE *fp = fopen(filePath, "r");
+    if(fp == NULL){
+        LOGD("%s not exist", filePath);
+        return 1;
+    }
+    fseek(fp, 0L, SEEK_END);//移到文件末尾读取文件长度
+    long sourceLen = ftell(fp);
+    fseek(fp, 0L, SEEK_SET);//移到文件开始
+    char * sourceBuff = (char *) calloc(sizeof(char), (size_t) sourceLen);
+    fread(sourceBuff, sizeof(char), (size_t) sourceLen, fp);
+    fclose(fp);
+
+    //############# redex #############
+    char* targetBuff = (char *) calloc((size_t) sourceLen, sizeof(char));
+    uint targetLen;
+    recode(sourceBuff, (uint) sourceLen, targetBuff, &targetLen);
+
+    //############# 写入文件 #############
+    if(fwrite(targetBuff, targetLen, ctargetPath, ctargetName) != 0){
+        return 2;
+    }
+
+    free(sourceBuff);
+    free(targetBuff);
+    env->ReleaseStringUTFChars(jsourceName, csourceName);
+    env->ReleaseStringUTFChars(jtargetPath, ctargetName);
+    env->ReleaseStringUTFChars(jtargetName, ctargetPath);
+    LOGD("Stop redex ......");
+    return 0;
+}
+
+
 //注册
 jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     JNINativeMethod methods[] = {
-            {"redex", "(Landroid/content/res/AssetManager;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I", (void *) redex}
+            {"redexFromAssets", "(Landroid/content/res/AssetManager;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I", (void *) redexFromAssets},
+            {"redexFromFile", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I", (void *) redexFromFile}
     };
 
     if (JNI_OK != vm->GetEnv((void **) &g_env, JNI_VERSION_1_6)) {
         return -1;
     }
     LOGD("JNI_OnLoad()");
-    native_class = g_env->FindClass("cc/gnaixx/hidex_hack/common/JniBridge");
+    native_class = g_env->FindClass("cc/gnaixx/hidex_libs/common/JniBridge");
     if (JNI_OK == g_env->RegisterNatives(native_class, methods, NELEM(methods))) {
         LOGD("Register success");
         return JNI_VERSION_1_6;

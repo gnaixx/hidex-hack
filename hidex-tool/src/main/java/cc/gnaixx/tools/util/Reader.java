@@ -82,10 +82,9 @@ public class Reader {
         do {
             flag = false;
             byte seg = buffer[offset];
-            if (seg < 0) {
+            if ((seg & 0x80) == 0x80) { //高8位为1
                 flag = true;
             }
-            seg = buffer[offset];
             seg = (byte) (seg & 0x7F);
             value += seg << (7 * count);
             realVal[count] = buffer[offset];

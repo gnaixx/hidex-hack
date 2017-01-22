@@ -35,11 +35,10 @@
         android:id="@+id/btn_target"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/btn_source"
-        android:layout_marginLeft="10dp"
-        android:layout_marginStart="10dp"
-        android:layout_toEndOf="@+id/btn_source"
-        android:layout_toRightOf="@+id/btn_source"
+        android:layout_alignLeft="@+id/btn_source"
+        android:layout_alignStart="@id/btn_source"
+        android:layout_below="@id/btn_source"
+        android:layout_marginTop="10dp"
         android:text="target"/>
 
     <Button
@@ -52,11 +51,37 @@
         android:layout_marginTop="10dp"
         android:text="hash"/>
 
-    <TextView
-        android:id="@+id/tv_msg"
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/btn_hash"
+        android:layout_below="@id/btn_hash"
         android:layout_marginTop="10dp"
-        android:text="TextView"/>
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_hash"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1.4"
+            android:layout_marginTop="10dp"
+            android:text="hash"/>
+
+        <TextView
+            android:id="@+id/tv_source"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="10dp"
+            android:layout_weight="1"
+            android:text="source"/>
+
+        <TextView
+            android:id="@+id/tv_target"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="10dp"
+            android:layout_weight="1"
+            android:text="target"/>
+    </LinearLayout>
+
 </RelativeLayout>
