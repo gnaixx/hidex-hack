@@ -152,9 +152,9 @@ dependencies {
 ```java
 public class MainActivity extends AppCompatActivity{
 
-    public static final String HIDEX_DEX  = "hidex-samp.dex";
-    public static final String REDEX_DEX  = "redex-hidex-samp.dex";
-    public static final String ENTRANCE   = "cc.gnaixx.samp.core.EntranceImpl";
+    public static final String HIDEX_DEX  = "hidex-samp.dex"; //加密dex名
+    public static final String REDEX_DEX  = "redex-hidex-samp.dex"; //解密后dex名
+    public static final String ENTRANCE   = "cc.gnaixx.samp.core.EntranceImpl"; //接口名
 
      @Override
      protected void onCreate(Bundle savedInstanceState) {
@@ -165,16 +165,19 @@ public class MainActivity extends AppCompatActivity{
         ClassLoader loader = new ClassLoader(this);
         //解密 assets 文件夹中dex 解密后存放目录 /data/data/packageName/files
         loader.redexFromAssets(HIDEX_DEX, REDEX_DEX);
+
         /*
         //1.加密dex名 2.解密dex存放路径 3.解密dex名
         loader.redexFromAssets(HIDEX_DEX, cachePath, REDEX_DEX);
         //1.加密dex存放路径 2.加密dex名 3.解密dex存放路径 4.解密dex名
         loader.redexFromFile(redexFromFile, HIDEX_DEX, cachePath, REDEX_DEX);
         */
+
         Entrance entrance = loader.load(cachePath, REDEX_DEX, ENTRANCE);
     }
 }
 ```
 
 **3. 实现效果**
+
 ![screen.png](./img/screen.png)
