@@ -155,7 +155,7 @@ case $1 in
         copy_dex
     ;;
     *)
-        echo "Usage:xxx {clean|build|hidex|redex|d2j|copy}"
+        echo -e "\nUsage:xxx {clean|build|hidex|redex|d2j|copy}"
     ;;
 esac
 echo -e "\n##################  end  ##################"

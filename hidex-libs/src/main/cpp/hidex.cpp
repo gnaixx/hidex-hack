@@ -349,7 +349,7 @@ int redexFromFile(JNIEnv* env, jclass clazz, jstring jsourcePath, jstring jsourc
 jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     JNINativeMethod methods[] = {
             {"redexFromAssets", "(Landroid/content/res/AssetManager;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I", (void *) redexFromAssets},
-            {"redexFromFile", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I", (void *) redexFromFile}
+            {"redexFromFile",   "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I",                 (void *) redexFromFile}
     };
 
     if (JNI_OK != vm->GetEnv((void **) &g_env, JNI_VERSION_1_6)) {

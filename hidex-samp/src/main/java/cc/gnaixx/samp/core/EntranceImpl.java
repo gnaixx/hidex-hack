@@ -28,12 +28,12 @@ public class EntranceImpl implements Entrance {
 
 
     //静态变量
-    private final static String TAG = "GNAIXX";
+    private final static String TAG = "HIDEX";
     private final static boolean DEBUG = true;
     private final static boolean RELEASE = false;
     private final static int FLAG = 1;
     public final static int COUNT = 2;
-    private final static byte[] NAME = new byte[]{0x49, 0x48};
+    private final static byte[] NAME = new byte[]{0x47, 0x4E, 0x41, 0x49, 0x58, 0x58};
 
 
     //示例变量
