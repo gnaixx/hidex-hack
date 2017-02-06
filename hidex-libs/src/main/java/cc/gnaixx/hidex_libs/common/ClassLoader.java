@@ -35,7 +35,7 @@ public class ClassLoader {
         Log.d(TAG, "Redex result: " + result);
     }
 
-    //dex还原
+    //dex还原 默认/data/data/package_name/files/
     public void redexFromAssets(String sourceName, String targetName) {
         String filesPath = context.getFilesDir().getAbsolutePath();
         redexFromAssets(sourceName, filesPath, targetName);
