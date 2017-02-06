@@ -30,7 +30,7 @@ hidex-libs 中定义了 `Entrance.java` 接口作为加密的 dex 的入口，�
 中通过反射调用实例化，并返回 `Entrance.java` 接口。但是不能同时在 hidex-libs 和 hidex-demo 中同时创建
 `Entrance.java` 接口会导致重复定义。
 
-## 0x02 使用介绍
+## 0x02 使用说明
 ### dex模块实现
 dex 模块，也就是案例中的 hidex-samp 模块。
 
@@ -92,8 +92,8 @@ dex 加密操作是放在线下进行的。编译 hidex-tool 后会生成可执�
 │   └── main
 ├── dependency-cache
 ├── libs
-│   ├── hidex-tool.jar  #可执行jar
-│   └── lib			    #必须依赖
+│   ├── hidex-tool.jar #可执行jar
+│   └── lib            #必须依赖
 └── tmp
     ├── compileJava
     └── jar
@@ -175,3 +175,6 @@ public class MainActivity extends AppCompatActivity{
     }
 }
 ```
+
+**3. 实现效果**
+![screen.png](./img/screen.png)
