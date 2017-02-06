@@ -147,7 +147,7 @@ dependencies {
 }
 ```
 
-**2.Redex And Load**
+**2. Redex And Load**
 
 ```java
 public class MainActivity extends AppCompatActivity{
@@ -181,3 +181,108 @@ public class MainActivity extends AppCompatActivity{
 **3. 实现效果**
 
 ![screen.png](./img/screen.png)
+
+## 0x03 脚本工具
+
+1. 清空编译
+
+```bash
+./hidex.sh clean
+################## start ##################
+
+Clean module and output
+
+##################  end  ##################
+```
+
+2. 编译 hidex-samp hidex-tool, jar2dex
+
+```bash
+./hidex.sh build
+################## start ##################
+
+Build hidex-samp default release
+注: /Users/xiangqing/Documents/project/hidex-hack/hidex-libs/src/main/java/cc/gnaixx/hidex_libs/common/ClassLoader.java使用了未经检查或不安全的操作。
+注: 有关详细信息, 请使用 -Xlint:unchecked 重新编译。
+Copy classes.jar to output/samp.jar
+
+Build hidex-tool default release
+警告: [options] 未与 -source 1.7 一起设置引导类路径
+1 个警告
+Copy hidex-tool.jar to output/hidex-tool.jar
+
+Transition output/samp.jar to output/samp.dex
+
+##################  end  ##################
+```
+
+3. 加密dex
+
+```bash
+./hidex.sh hidex
+################## start ##################
+
+hidex samp.dex to hidex-samp.dex
+path            ---> /Users/xiangqing/Documents/project/hidex-hack
+{"header":{"magic":"dex\n035.","data_size":2804,"proto_ids_size":26,"string_ids_size":105,"field_ids_off":940,"signature":"AFB18AFE69109A95A2200794567FDB2532CE2E5E","header_size":112,"link_size":0,"map_off":4108,"method_ids_size":45,"file_size":4280,"endian_tag":"12345678","class_defs_off":1412,"method_ids_off":1052,"type_ids_size":24,"field_ids_size":14,"checksum":"7EBF88AD","link_off":0,"class_defs_size":2,"data_off":1476,"string_ids_off":112,"proto_ids_off":628,"type_ids_off":532},"class_def":[{"superclass_idx":"Ljava/lang/Object;","static_values_off":4005,"class_data_off":4027,"annotations_off":0,"class_idx":"Lcc/gnaixx/samp/BuildConfig;","interfaces_off":0,"static_values":{"size":6},"source_file_idx":"BuildConfig.java","class_data":{"virtual_methods":[],"virtual_methods_size":0,"static_fields_size":6,"direct_methods_size":1,"instance_fields_size":0,"direct_methods":[{"code_off":1476,"method_idx_diff":0,"access_flags":65537}]},"access_flags":17},{"superclass_idx":"Ljava/lang/Object;","static_values_off":4017,"class_data_off":4049,"annotations_off":0,"class_idx":"Lcc/gnaixx/samp/core/EntranceImpl;","interfaces_off":2448,"static_values":{"size":6},"source_file_idx":"EntranceImpl.java","class_data":{"virtual_methods":[{"code_off":1592,"method_idx_diff":3,"access_flags":1},{"code_off":1744,"method_idx_diff":1,"access_flags":1},{"code_off":1860,"method_idx_diff":1,"access_flags":1},{"code_off":1976,"method_idx_diff":1,"access_flags":1},{"code_off":2120,"method_idx_diff":1,"access_flags":1},{"code_off":2276,"method_idx_diff":1,"access_flags":1}],"virtual_methods_size":6,"static_fields_size":6,"direct_methods_size":2,"instance_fields_size":2,"direct_methods":[{"code_off":1500,"method_idx_diff":1,"access_flags":65544},{"code_off":1552,"method_idx_diff":1,"access_flags":65537}]},"access_flags":1}]}
+config          ---> {hack_me_def=[cc.gnaixx.samp.core.EntranceImpl], hack_sf_val=[cc.gnaixx.samp.core.EntranceImpl], hack_me_size=[cc.gnaixx.samp.core.EntranceImpl], hack_class=[cc.gnaixx.samp.BuildConfig]}
+hack_class      ---> cc.gnaixx.samp.BuildConfig
+hack_sf_val     ---> cc.gnaixx.samp.core.EntranceImpl
+hack_me_size    ---> cc.gnaixx.samp.core.EntranceImpl
+hack_me_def     ---> cc.gnaixx.samp.core.EntranceImpl
+old_signature   ---> AFB18AFE69109A95A2200794567FDB2532CE2E5E
+new_signature   ---> 73A90C233919403FCFE503756CF932CBA719A956
+old_checksum    ---> 7EBF88AD
+new_checksum    ---> 583F8B2B
+
+##################  end  ##################
+```
+
+4. 解密dex
+
+```bash
+./hidex.sh redex
+################## start ##################
+
+redex hidex-samp.dex to redex-hidex-samp.dex
+path            ---> /Users/xiangqing/Documents/project/hidex-hack
+hackPoint       ---> {"offset":1436,"type":1,"value":4027}
+hackPoint       ---> {"offset":1472,"type":1,"value":4017}
+hackPoint       ---> {"offset":4051,"type":3,"value":2}
+hackPoint       ---> {"offset":4052,"type":3,"value":6}
+fileSize        ---> 4280
+signature       ---> AFB18AFE69109A95A2200794567FDB2532CE2E5E
+checksum        ---> 7EBF88AD
+
+##################  end  ##################
+
+```
+
+5. dex2jar
+
+```bash
+./hidex.sh d2j
+################## start ##################
+
+Transition output/samp.dex to output/reverse-samp.jar
+dex2jar output/samp.dex -> output/reverse-samp.jar
+
+Transition output/hidex-samp.dex to output/reverse-hidex-samp.jar
+dex2jar output/hidex-samp.dex -> output/reverse-hidex-samp.jar
+
+Transition output/redex-hidex-samp.dex to output/reverse-redex-hidex-samp.jar
+dex2jar output/redex-hidex-samp.dex -> output/reverse-redex-hidex-samp.jar
+
+##################  end  ##################
+```
+
+6. Copy dex to module hidex-demo
+
+```bash
+./hidex.sh copy
+################## start ##################
+
+Copy dex to hidex-demo
+
+##################  end  ##################
+```
