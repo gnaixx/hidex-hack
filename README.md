@@ -184,7 +184,7 @@ public class MainActivity extends AppCompatActivity{
 
 ## 0x03 脚本工具
 
-1. 清空编译
+**1. 清空编译**
 
 ```bash
 ./hidex.sh clean
@@ -195,7 +195,7 @@ Clean module and output
 ##################  end  ##################
 ```
 
-2. 编译 hidex-samp hidex-tool, jar2dex
+**2. 编译 hidex-samp hidex-tool, jar2dex**
 
 ```bash
 ./hidex.sh build
@@ -216,7 +216,7 @@ Transition output/samp.jar to output/samp.dex
 ##################  end  ##################
 ```
 
-3. 加密dex
+**3. 加密dex**
 
 ```bash
 ./hidex.sh hidex
@@ -238,7 +238,7 @@ new_checksum    ---> 583F8B2B
 ##################  end  ##################
 ```
 
-4. 解密dex
+**4. 解密dex**
 
 ```bash
 ./hidex.sh redex
@@ -258,7 +258,7 @@ checksum        ---> 7EBF88AD
 
 ```
 
-5. dex2jar
+**5. dex2jar**
 
 ```bash
 ./hidex.sh d2j
@@ -276,7 +276,7 @@ dex2jar output/redex-hidex-samp.dex -> output/reverse-redex-hidex-samp.jar
 ##################  end  ##################
 ```
 
-6. Copy dex to module hidex-demo
+**6. Copy dex to module hidex-demo**
 
 ```bash
 ./hidex.sh copy
@@ -286,3 +286,6 @@ Copy dex to hidex-demo
 
 ##################  end  ##################
 ```
+
+## 0x04 实现原理
+实现原理会在博客中进行介绍: [DEX文件混淆加密](http://gnaixx.cc/2017/02/06/20170206hidex-hack/)
