@@ -156,7 +156,7 @@ public class HidexHandle {
             String classname = conf.get(i);
             boolean isDef = false;
             for (int j = 0; j < classDefItem.length; j++) {
-                String className = dexFile.typeIds.getString(dexFile, classDefItem[j].classIdx);
+                String className = dexFile.typeIds.getString(dexFile, classDefItem[j].classIdx); //查找顺序 class_idx => type_ids => string_ids
                 className = pathToPackages(className); //获取类名
                 if (className.equals(classname)) {
                     callBack.doHack(classDefItem[j], this.hackPoints); //具体操作

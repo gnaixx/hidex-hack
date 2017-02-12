@@ -42,6 +42,7 @@ public class RedexHandle {
         this.dexBuff = dexBuff;
     }
 
+    //修复dex文件
     public byte[] redex() {
         int mapOff = getUint(dexBuff, MAP_OFF_OFF); //获取map_off
         int mapSize = getUint(dexBuff, mapOff); //获取map_size
