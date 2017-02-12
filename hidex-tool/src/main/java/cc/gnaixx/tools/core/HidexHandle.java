@@ -61,7 +61,7 @@ public class HidexHandle {
     private void hackClassDef() {
         ClassDefs classDefs = dexFile.classDefs;
         ClassDefs.ClassDef classDefItem[] = classDefs.classDefs;
-
+        //读取配置
         List<String> confCdOff  = config.get(Constants.HACK_CLASS);
         List<String> confSfVal  = config.get(Constants.HACK_SF_VAL);
         List<String> confMeSize = config.get(Constants.HACK_ME_SIZE);
