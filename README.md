@@ -9,8 +9,11 @@
 该工具主要功能实现了隐藏dex文件中关键的代码，包括静态变量的隐藏，函数的隐藏，以及整个类的隐藏，从而达到混淆的效果。
 混淆后的 dex 文件可以通过像 dex2jar jade 等工具的反编译。
 
-**效果对比:**
-![comprare.png](./img/compare.png)
+**java 效果对比:**
+![comprare.png](./img/compare-java.png)
+
+**smali 效果对比:**
+![comprare.png](./img/compare-smali.png)
 
 ## 0x01 项目模块
 **项目分为四个模块:**
@@ -130,10 +133,10 @@ hack_me_def: cc.gnaixx.samp.core.EntranceImpl
 
 ```bash
 #加密 option:hidex
-java -jar hidex-tool.jar hidex source.dex target.dex
+java -jar hidex-tool.jar hidex source.dex hidex.conf
 
 #解密 option:redex
-java -jar hidex-tool.jar redex source.dex target.dex
+java -jar hidex-tool.jar redex target.dex
 ```
 _注意: Android library module 生成的一般是 class.jar 需要用 dex 工具转化为 dex。_
 

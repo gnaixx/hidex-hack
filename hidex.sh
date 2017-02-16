@@ -91,7 +91,16 @@ function copy_dex(){
     cp -r output/*.dex ${assets_dir}
     rm ${assets_dir}/redex-**.dex
 }
-
+#####################################
+#   dex to smali
+#param1 输入文件
+#param2 生成文件名
+#param3 存放路径
+#####################################
+function dex2smali(){
+    echo -e "\nDisassembles a dex file: $3/$1 -> $3/$2"
+    baksmali d $3/$1 -o $3/$2
+}
 #####################################
 #   清空编译
 #####################################
@@ -120,6 +129,10 @@ redex_samp_dex="redex-hidex-samp.dex"
 reverse_source_samp_jar="reverse-samp.jar"
 reverse_hidex_samp_jar="reverse-hidex-samp.jar"
 reverse_redex_samp_jar="reverse-redex-hidex-samp.jar"
+#smali file
+smali_source_samp="smali-samp"
+smali_hidex_samp="smali-hidex-samp"
+smali_redex_samp="smali-redex-samp"
 #action
 action_hidex="hidex"
 action_redex="redex"
@@ -150,6 +163,11 @@ case $1 in
         dex2jar ${source_samp_dex} ${reverse_source_samp_jar} ${output_dir}
         dex2jar ${hidex_samp_dex} ${reverse_hidex_samp_jar} ${output_dir}
         dex2jar ${redex_samp_dex} ${reverse_redex_samp_jar} ${output_dir}
+    ;;
+    d2s)
+        dex2smali ${source_samp_dex} ${smali_source_samp} ${output_dir}
+        dex2smali ${hidex_samp_dex} ${smali_hidex_samp} ${output_dir}
+        dex2smali ${redex_samp_dex} ${smali_redex_samp} ${output_dir}
     ;;
     copy)
         copy_dex
