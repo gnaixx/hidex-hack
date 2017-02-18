@@ -1,1 +1,1 @@
-include ':hidex-demo', ':hidex-tool', ':hidex-samp', ':hidex-libs'
+include ':hidex-demo', ':hidex-tool', ':hidex-samp', ':hidex-libs', ':hidex-load'
