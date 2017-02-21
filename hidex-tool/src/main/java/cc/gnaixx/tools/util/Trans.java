@@ -128,20 +128,21 @@ public class Trans {
         return hackPoints;
     }
 
-    public static Uleb128 intToUleb128(int val) {
-        byte[] realVal = new byte[]{0x00, 0x00, 0x00, 0x00}; //int 最大长度为4
-        int bk = val;
-        int len = 0;
-        for (int i = 0; i < realVal.length; i++) {
-            len = i + 1; //最少长度为1
-            realVal[i] = (byte) (val & 0x7F); //获取低7位的值
-            if (val > (0x7F)) {
-                realVal[i] |= 0x80; //高位为1 加上去
+    public static Uleb128 intToUleb128(int value) {
+        byte[] origValue = new byte[]{0x00, 0x00, 0x00, 0x00}; //int 最大长度为4
+        int intValue = value;
+        int length = 0;
+        for (int i = 0; i < origValue.length; i++) {
+            length = i + 1; //最少长度为1
+            origValue[i] = (byte) (value & 0x7F); //获取低7位的值
+            if (value > (0x7F)) {
+                origValue[i] |= 0x80; //高位为1 加上去
             }
-            val = val >> 7;
-            if (val <= 0) break;
+            value = value >> 7;
+            if (value <= 0) break;
         }
-        Uleb128 uleb128 = new Uleb128(BufferUtil.subdex(realVal, 0, len), bk);
+        origValue = BufferUtil.subdex(origValue, 0, length);
+        Uleb128 uleb128 = new Uleb128(origValue, intValue, length);
         return uleb128;
     }
 }

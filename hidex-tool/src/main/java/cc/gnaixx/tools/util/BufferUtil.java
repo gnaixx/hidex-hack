@@ -37,23 +37,25 @@ public class BufferUtil {
         return value;
     }
 
-    public static Uleb128 getUleb128(byte[] stream, int off) {
+    public static Uleb128 getUleb128(byte[] stream, int offSet) {
         int value = 0;
-        int count = 0;
-        byte realVal[] = new byte[4];
-        boolean flag = false;
+        int length = 0;
+        byte origValue[] = new byte[4];
+        boolean flag;
         do {
-            byte seg = stream[off];
-            if ((seg >> 7) == 1) {
+            flag = false;
+            byte seg = stream[offSet];
+            if ((seg & 0x80) == 0x80) { //第一位为1
                 flag = true;
             }
-            seg = stream[off];
-            value += ((seg << 1) >> 1) << (7 * count);
-            realVal[count] = stream[off];
-            count++;
-            off++;
+            seg = (byte) (seg & 0x7F);
+            value += seg << (7 * length);
+            origValue[length] = stream[offSet];
+            length++;
+            offSet++;
         } while (flag);
-        return new Uleb128(realVal, value);
+        origValue = BufferUtil.subdex(origValue, 0, length);//去掉空字节
+        return new Uleb128(origValue, value, length);
     }
 
     public static byte[] replace(byte[] source, byte[] replacement, int off, int len) {

@@ -52,8 +52,8 @@ public class Writer {
     }
 
     public void writeUleb128(Uleb128 val){
-        byte realVal[] = val.getRealVal();
-        int len = val.getSize();
+        byte realVal[] = val.getOrigValue();
+        int len = val.getLength();
         replace(realVal, len);
     }
 }

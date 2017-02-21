@@ -22,12 +22,12 @@ public class StaticValues {
 
     public StaticValues(Uleb128 size){
         this.size = size;
-        this.staticValue = new StaticValue[this.size.getVal()];
+        this.staticValue = new StaticValue[this.size.getIntValue()];
     }
 
     public JSONObject toJson(){
         JSONObject jsonStaticValues = new JSONObject();
-        jsonStaticValues.put("size", size.getVal());
+        jsonStaticValues.put("size", size.getIntValue());
         return jsonStaticValues;
     }
 }

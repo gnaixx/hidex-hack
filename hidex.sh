@@ -107,8 +107,9 @@ function dex2smali(){
 function clean_output(){
     echo -e "\nClean module and output"
     ./gradlew -q clean
-    rm output/*.dex
-    rm output/*.jar
+    cd output
+    ls | grep -v *.conf | xargs rm -rf
+    cd ..
 }
 
 

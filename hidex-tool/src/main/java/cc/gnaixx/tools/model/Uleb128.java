@@ -9,23 +9,25 @@ package cc.gnaixx.tools.model;
  */
 
 public class Uleb128 {
-    byte[] realVal;
-    int val;
+    byte[] origValue;
+    int intValue;
+    int length;
 
-    public Uleb128(byte[] realVal, int val){
-        this.realVal = realVal;
-        this.val = val;
+    public Uleb128(byte[] origValue, int intValue, int length){
+        this.origValue = origValue;
+        this.intValue = intValue;
+        this.length = length;
     }
 
-    public int getSize(){
-        return this.realVal.length;
+    public int getLength(){
+        return this.length;
     }
 
-    public int getVal(){
-        return this.val;
+    public int getIntValue(){
+        return this.intValue;
     }
 
-    public byte[] getRealVal(){
-        return this.realVal;
+    public byte[] getOrigValue(){
+        return this.origValue;
     }
 }

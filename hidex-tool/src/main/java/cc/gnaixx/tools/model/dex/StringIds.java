@@ -40,7 +40,7 @@ public class StringIds {
         for (int i = 0; i < size; i++) {
             int dataOff = reader.readUint();
             Uleb128 utf16Size = getUleb128(dexBuff, dataOff);
-            byte[] data = subdex(dexBuff, dataOff + utf16Size.getSize(), utf16Size.getVal());
+            byte[] data = subdex(dexBuff, dataOff + utf16Size.getLength(), utf16Size.getIntValue());
             StringId stringId = new StringId(dataOff, utf16Size, data);
             stringIds[i] = stringId;
         }
@@ -56,7 +56,7 @@ public class StringIds {
         for (int i = 0; i < stringIds.length; i++) {
             StringId stringId = stringIds[i];
             JSONObject jsonData = new JSONObject();
-            jsonData.put("utf16_size", stringId.utf16Size.getVal());
+            jsonData.put("utf16_size", stringId.utf16Size.getIntValue());
             jsonData.put("data", new String(stringId.data));
 
             JSONObject jsonItem = new JSONObject();

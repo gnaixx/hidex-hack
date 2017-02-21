@@ -24,7 +24,7 @@ public class EncodedMethod {
     public EncodedMethod(Reader reader){
         this.methodIdxDiff = reader.readUleb128();
         this.accessFlags = reader.readUleb128();
-        this.codeOff = new HackPoint(HackPoint.ULEB128, reader.getOff(), reader.readUleb128().getVal());
+        this.codeOff = new HackPoint(HackPoint.ULEB128, reader.getOff(), reader.readUleb128().getIntValue());
     }
 
     public void write(Writer writer){
@@ -35,8 +35,8 @@ public class EncodedMethod {
 
     public JSONObject toJson() {
         JSONObject json = new JSONObject();
-        json.put("method_idx_diff", methodIdxDiff.getVal());
-        json.put("access_flags", accessFlags.getVal());
+        json.put("method_idx_diff", methodIdxDiff.getIntValue());
+        json.put("access_flags", accessFlags.getIntValue());
         json.put("code_off", codeOff.value);
         return json;
     }

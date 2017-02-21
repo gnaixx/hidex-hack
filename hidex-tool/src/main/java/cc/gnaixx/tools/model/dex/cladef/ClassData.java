@@ -29,10 +29,10 @@ public class ClassData {
 
     public ClassData(byte[] dexBuff, int off){
         Reader reader = new Reader(dexBuff, off);
-        this.staticFieldsSize = new HackPoint(HackPoint.ULEB128, reader.getOff(), reader.readUleb128().getVal());
-        this.instanceFieldsSize = new HackPoint(HackPoint.ULEB128, reader.getOff(), reader.readUleb128().getVal());
-        this.directMethodsSize = new HackPoint(HackPoint.ULEB128, reader.getOff(), reader.readUleb128().getVal());
-        this.virtualMethodsSize = new HackPoint(HackPoint.ULEB128, reader.getOff(), reader.readUleb128().getVal());
+        this.staticFieldsSize = new HackPoint(HackPoint.ULEB128, reader.getOff(), reader.readUleb128().getIntValue());
+        this.instanceFieldsSize = new HackPoint(HackPoint.ULEB128, reader.getOff(), reader.readUleb128().getIntValue());
+        this.directMethodsSize = new HackPoint(HackPoint.ULEB128, reader.getOff(), reader.readUleb128().getIntValue());
+        this.virtualMethodsSize = new HackPoint(HackPoint.ULEB128, reader.getOff(), reader.readUleb128().getIntValue());
 
         staticFields = new EncodedField[this.staticFieldsSize.value];
         for(int i=0; i<this.staticFieldsSize.value; i++){

@@ -31,8 +31,8 @@ public class EncodedField {
 
     public JSONObject toJson() {
         JSONObject json = new JSONObject();
-        json.put("field_idx_diff", fieldIdxDiff.getVal());
-        json.put("access_flags", accessFlags.getVal());
+        json.put("field_idx_diff", fieldIdxDiff.getIntValue());
+        json.put("access_flags", accessFlags.getIntValue());
         return json;
     }
 }

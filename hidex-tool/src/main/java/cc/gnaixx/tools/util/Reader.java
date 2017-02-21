@@ -76,22 +76,23 @@ public class Reader {
 
     public Uleb128 readUleb128() {
         int value = 0;
-        int count = 0;
-        byte realVal[] = new byte[4];
-        boolean flag = false;
+        int length = 0;
+        byte origValue[] = new byte[4];
+        boolean flag;
         do {
             flag = false;
             byte seg = buffer[offset];
-            if ((seg & 0x80) == 0x80) { //高8位为1
+            if ((seg & 0x80) == 0x80) { //第一位为1
                 flag = true;
             }
             seg = (byte) (seg & 0x7F);
-            value += seg << (7 * count);
-            realVal[count] = buffer[offset];
-            count++;
+            value += seg << (7 * length);
+            origValue[length] = buffer[offset];
+            length++;
             offset++;
         } while (flag);
-        return new Uleb128(BufferUtil.subdex(realVal, 0, count), value);
+        origValue = BufferUtil.subdex(origValue, 0, length);//去掉空字节
+        return new Uleb128(origValue, value, length);
     }
 
 }
