@@ -10,14 +10,14 @@ import cc.gnaixx.hidex_hack.R;
 import cc.gnaixx.hidex_libs.common.ClassLoader;
 import cc.gnaixx.hidex_libs.inter.Entrance;
 
-import static cc.gnaixx.hidex_hack.common.ToolKit.copyFromAssets;
-import static cc.gnaixx.hidex_hack.common.ToolKit.md5;
-import static cc.gnaixx.hidex_hack.common.ToolKit.readFiles;
+import static cc.gnaixx.hidex_hack.common.Encoder.md5;
+import static cc.gnaixx.hidex_hack.common.FileTool.copyFromAssets;
+import static cc.gnaixx.hidex_hack.common.FileTool.readFiles;
 import static cc.gnaixx.hidex_hack.common.Constant.ENTRANCE;
 import static cc.gnaixx.hidex_hack.common.Constant.HIDEX_DEX;
 import static cc.gnaixx.hidex_hack.common.Constant.REDEX_DEX;
 import static cc.gnaixx.hidex_hack.common.Constant.SOURCE_DEX;
-import static cc.gnaixx.hidex_hack.common.ToolKit.readAssets;
+import static cc.gnaixx.hidex_hack.common.FileTool.readAssets;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 

@@ -40,7 +40,7 @@ public class StringIds {
         for (int i = 0; i < size; i++) {
             int dataOff = reader.readUint();
             Uleb128 utf16Size = getUleb128(dexBuff, dataOff);
-            byte[] data = subdex(dexBuff, dataOff + 1, utf16Size.getVal());
+            byte[] data = subdex(dexBuff, dataOff + utf16Size.getSize(), utf16Size.getVal());
             StringId stringId = new StringId(dataOff, utf16Size, data);
             stringIds[i] = stringId;
         }

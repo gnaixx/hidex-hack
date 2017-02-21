@@ -11,9 +11,8 @@ import android.content.res.AssetManager;
  */
 
 public class JniBridge {
-    // Used to load the 'native-lib' library on application startup.
     static {
-        System.loadLibrary("hidex");
+        System.loadLibrary("hidex-lib");
     }
 
     public static native int redexFromAssets(AssetManager asset, String sourceName,

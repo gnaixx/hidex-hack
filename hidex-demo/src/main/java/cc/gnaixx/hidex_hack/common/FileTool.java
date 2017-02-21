@@ -23,7 +23,7 @@ import static android.content.ContentValues.TAG;
  * @date 2016/11/29
  */
 
-public class ToolKit {
+public class FileTool {
 
     //将文件复制到cache
     public static void copyFromAssets(Context context, String path, String filename) {
@@ -75,26 +75,5 @@ public class ToolKit {
         }
     }
 
-    // encrypt by md5
-    public static String md5(byte[] data) {
-        if(data == null) return "";
-        try {
-            // Create MD5 Hash
-            MessageDigest digest = MessageDigest.getInstance("MD5");
-            digest.reset();
-            digest.update(data);
-            byte hashValue[] = digest.digest();
-            BigInteger bInt = new BigInteger(1, hashValue);
-            // Create Hex String
-            String md5 = bInt.toString(16).toLowerCase();
-            // pad zero
-            while(md5.length() < 32 ){
-                md5 = "0" + md5;
-            }
-            return md5;
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            return "";
-        }
-    }
+
 }
