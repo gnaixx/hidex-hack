@@ -4,7 +4,7 @@ import android.content.Context;
 import android.os.Build;
 import android.util.Log;
 
-import cc.gnaixx.hidex_load.tool.Constant;
+import cc.gnaixx.hidex_load.tool.NativeTool;
 import cc.gnaixx.hidex_load.tool.RefInvoke;
 import dalvik.system.DexFile;
 
@@ -32,6 +32,7 @@ public class CustDexClassLoader {
                 "openDexFile",
                 new Class[] {byte[].class});
         Log.i(TAG, "VERSION:" + Build.VERSION.RELEASE + ", API:" + Build.VERSION.SDK_INT);
+        Log.i(TAG, "openDexFile(byte[]):" + hasOpenDexFile);
 
         Object cookie = null;
         if(hasOpenDexFile){ //4.0-4.2处理方式
@@ -40,12 +41,15 @@ public class CustDexClassLoader {
                     "openDexFile",
                     new Class[] {byte[].class},
                     new Object[] {dexBytes});
-        }else{
-
+        }else{ //4.2-4.4以上方法通过 jni 调用 Dalvik_dalvik_system_DexFile_openDexFile
+            cookie = NativeTool.custOpenDexFile(dexBytes, dexBytes.length);//调用native方法
         }
 
         if(cookie == null){ //没有获取到cookie
             Log.d(TAG, "Cookie is null");
+        }else{
+            Log.d(TAG, "Cookie is:" + cookie);
+            this.mCookie = cookie;
         }
     }
 
@@ -54,7 +58,6 @@ public class CustDexClassLoader {
         Log.i(TAG, "findClass: " + name);
         Class clazz = null;
         String classNameList[] = getClassNameList((int)this.mCookie);
-
         for(int i=0; i<classNameList.length; i++){
             Log.i(TAG, "className:" + classNameList[i]);
             Class cla = defineClass(classNameList[i].replace('.','/'), mContext.getClassLoader(), (int)this.mCookie);
@@ -67,6 +70,7 @@ public class CustDexClassLoader {
 
     //获取所有类
     private String[] getClassNameList(int cookie){
+
         String classNameList[] = (String[]) RefInvoke.invokeDeclaredStaticMethod(
                 DexFile.class.getName(),
                 "getClassNameList",
@@ -78,11 +82,26 @@ public class CustDexClassLoader {
     //定义类
     private Class defineClass(String className, ClassLoader loader, int cookie){
         Log.i(TAG, "defineClass:" + className);
-        Class clazz = (Class) RefInvoke.invokeDeclaredStaticMethod(
+
+        boolean hasDefineClass = RefInvoke.hasMethod(
                 DexFile.class.getName(),
                 "defineClass",
-                new Class[] {String.class, ClassLoader.class, int.class},
-                new Object[]{className, loader, cookie});
+                new Class[]{String.class, ClassLoader.class, int.class});
+
+        Class clazz = null;
+        if(hasDefineClass) { //4.2 以后改为 defineClassNative
+            clazz = (Class) RefInvoke.invokeDeclaredStaticMethod(
+                    DexFile.class.getName(),
+                    "defineClass",
+                    new Class[]{String.class, ClassLoader.class, int.class},
+                    new Object[]{className, loader, cookie});
+        }else{
+            clazz = (Class) RefInvoke.invokeDeclaredStaticMethod(
+                    DexFile.class.getName(),
+                    "defineClassNative",
+                    new Class[]{String.class, ClassLoader.class, int.class},
+                    new Object[]{className, loader, cookie});
+        }
         return clazz;
     }
 }

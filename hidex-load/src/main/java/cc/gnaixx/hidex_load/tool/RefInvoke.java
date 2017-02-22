@@ -24,7 +24,7 @@ public class RefInvoke {
             return true;
         } catch (ClassNotFoundException e) {
             Log.e(TAG, "Class not found: " + className);
-            e.printStackTrace();
+            //e.printStackTrace();
             return false;
         } catch (NoSuchMethodException e) {
             String paramStr = "";
@@ -33,7 +33,7 @@ public class RefInvoke {
             }
             paramStr = paramStr.substring(1);
             Log.e(TAG, "No such method: " + className +"."+methodName + "(" + paramStr+")");
-            e.printStackTrace();
+            //e.printStackTrace();
             return false;
         }
     }

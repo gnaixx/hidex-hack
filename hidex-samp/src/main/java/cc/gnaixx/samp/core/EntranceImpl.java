@@ -34,6 +34,7 @@ public class EntranceImpl implements Entrance {
     private final static int FLAG = 1;
     public final static int COUNT = 2;
     private final static byte[] NAME = new byte[]{0x47, 0x4E, 0x41, 0x49, 0x58, 0x58};
+    private final static String STRING = "这是一段中文";
 
 
     //示例变量
@@ -142,6 +143,7 @@ public class EntranceImpl implements Entrance {
             json.put("FLAG", FLAG);
             json.put("COUNT", COUNT);
             json.put("NAME", new String(NAME));
+            json.put("STRING", STRING);
         } catch (JSONException e) {
             e.printStackTrace();
         }

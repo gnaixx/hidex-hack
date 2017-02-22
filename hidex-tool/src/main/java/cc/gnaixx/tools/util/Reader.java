@@ -94,5 +94,4 @@ public class Reader {
         origValue = BufferUtil.subdex(origValue, 0, length);//去掉空字节
         return new Uleb128(origValue, value, length);
     }
-
 }

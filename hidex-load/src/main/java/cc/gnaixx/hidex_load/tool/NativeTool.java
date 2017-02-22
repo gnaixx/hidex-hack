@@ -10,7 +10,7 @@ package cc.gnaixx.hidex_load.tool;
 
 public class NativeTool {
     static {
-        System.loadLibrary("hidex-load-lib");
+        System.loadLibrary("hidex_load");
     }
 
     public static native int custOpenDexFile(byte[] dexBytes, int dexLen);
