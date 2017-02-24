@@ -34,7 +34,7 @@ public class EntranceImpl implements Entrance {
     private final static int FLAG = 1;
     public final static int COUNT = 2;
     private final static byte[] NAME = new byte[]{0x47, 0x4E, 0x41, 0x49, 0x58, 0x58};
-    private final static String STRING = "这是一段中文";
+    private final static String STRING = "NAME:薛祥清";
 
 
     //示例变量

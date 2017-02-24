@@ -46,7 +46,7 @@ public class Main {
                 INPUT_FILE = args[1];
             }
             //generate output file and check config
-            if (action.equals(ACTION_HIDEX)) {
+            if (action.equalsIgnoreCase(ACTION_HIDEX)) {
                 HIDEX_FILE = addPrefix(INPUT_FILE, ACTION_HIDEX);
                 if(args[2]==null || !checkFile(args[2])){
                     System.out.println("Please enter the correct config file");
@@ -54,8 +54,11 @@ public class Main {
                 }else{
                     CONFIG_FILE = args[2];
                 }
-            } else if (action.equals(ACTION_REDEX)) {
+            } else if (action.equalsIgnoreCase(ACTION_REDEX)) {
                 REDEX_FILE = addPrefix(INPUT_FILE, ACTION_REDEX);
+            } else{
+                System.out.println("Input action error");
+                System.exit(1);
             }
         } else {
             System.out.print("input action(hidex|redex):");
@@ -63,10 +66,13 @@ public class Main {
             action = scanner.nextLine();
         }
 
-        if (action.equals(ACTION_HIDEX)) {
+        if (action.equalsIgnoreCase(ACTION_HIDEX)) {
             new Main().hidex();
-        } else {
+        } else  if(action.equalsIgnoreCase(ACTION_REDEX)){
             new Main().redex();
+        } else{
+            System.out.println("Input action error");
+            System.exit(1);
         }
     }
 

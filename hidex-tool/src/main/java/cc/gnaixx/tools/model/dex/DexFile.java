@@ -63,7 +63,7 @@ public class DexFile {
     public String toJsonStr(){
         JSONObject jsonDex = new JSONObject();
         jsonDex.put("header", header.toJson());
-        //jsonDex.put("string_ids", stringIds.toJson());
+        jsonDex.put("string_ids", stringIds.toJson());
         //jsonDex.put("type_ids", typeIds.toJson());
         //jsonDex.put("proto_ids", protoIds.toJson());
         //jsonDex.put("field_ids", fieldIds.toJson(this));

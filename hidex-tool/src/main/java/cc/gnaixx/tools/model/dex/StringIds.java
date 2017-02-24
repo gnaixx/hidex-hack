@@ -7,6 +7,7 @@ import cc.gnaixx.tools.model.Uleb128;
 import cc.gnaixx.tools.util.Reader;
 
 import static cc.gnaixx.tools.util.BufferUtil.getUleb128;
+import static cc.gnaixx.tools.util.BufferUtil.getUtf8;
 import static cc.gnaixx.tools.util.BufferUtil.subdex;
 
 /**
@@ -40,7 +41,7 @@ public class StringIds {
         for (int i = 0; i < size; i++) {
             int dataOff = reader.readUint();
             Uleb128 utf16Size = getUleb128(dexBuff, dataOff);
-            byte[] data = subdex(dexBuff, dataOff + utf16Size.getLength(), utf16Size.getIntValue());
+            byte[] data = getUtf8(dexBuff, dataOff + utf16Size.getLength(), utf16Size.getIntValue()); //读取utf-8 类型数据
             StringId stringId = new StringId(dataOff, utf16Size, data);
             stringIds[i] = stringId;
         }
