@@ -4,6 +4,8 @@ import android.content.Context;
 import android.os.Build;
 import android.util.Log;
 
+import java.lang.reflect.Method;
+
 import cc.gnaixx.hidex_load.tool.NativeTool;
 import cc.gnaixx.hidex_load.tool.RefInvoke;
 import dalvik.system.DexFile;
@@ -26,6 +28,19 @@ public class CustDexClassLoader {
     public CustDexClassLoader(Context context, byte[] dexBytes){
         this.mContext = context;
 
+        Method[] methods = DexFile.class.getDeclaredMethods();
+        for(Method method:methods){
+            Log.d(TAG, method.getName());
+            Log.d(TAG, method.getReturnType().getName());
+            Class[] paramTypes = method.getParameterTypes();
+            String paramStr = "";
+            for(Class paramType : paramTypes){
+                paramStr += paramType.getSimpleName() + ",";
+            }
+            Log.d(TAG, paramStr);
+            Log.d(TAG, "---------------------------------");
+        }
+
         //DexFile.openDexFile(byte[]) 在4.0-4.2存在，后续版本被google删了
         boolean hasOpenDexFile = hasMethod(
                 DexFile.class.getName(),
@@ -42,7 +57,7 @@ public class CustDexClassLoader {
                     new Class[] {byte[].class},
                     new Object[] {dexBytes});
         }else{ //4.2-4.4以上方法通过 jni 调用 Dalvik_dalvik_system_DexFile_openDexFile
-            cookie = NativeTool.custOpenDexFile(dexBytes, dexBytes.length);//调用native方法
+            cookie = NativeTool.custOpenDexFile(context, dexBytes, dexBytes.length);//调用native方法
         }
 
         if(cookie == null){ //没有获取到cookie

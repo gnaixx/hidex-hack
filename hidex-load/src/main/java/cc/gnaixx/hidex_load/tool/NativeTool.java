@@ -1,5 +1,7 @@
 package cc.gnaixx.hidex_load.tool;
 
+import android.content.Context;
+
 /**
  * 名称: NativeTool
  * 描述:
@@ -13,5 +15,5 @@ public class NativeTool {
         System.loadLibrary("hidex_load");
     }
 
-    public static native int custOpenDexFile(byte[] dexBytes, int dexLen);
+    public static native Object custOpenDexFile(Context context, byte[] dexBytes, int dexLen);
 }

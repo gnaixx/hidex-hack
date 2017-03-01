@@ -5,23 +5,21 @@
 #ifndef HIDEX_HACK_HIDEX_LOAD_LIB_H
 #define HIDEX_HACK_HIDEX_LOAD_LIB_H
 
-#include <jni.h>
-#include <android/log.h>
-#include <dlfcn.h>
 #include "Common.h"
+#include "HidexLoad.h"
 
-#define LIB_DVM "libdvm.so"
-#define LIB_ART "libart.so"
-#define JNI_NATIVE_METHOD "dvm_dalvik_system_DexFile"
-#define METHOD_NAME "openDexFile"
-#define METHOD_SIGNATURE "([B)I"
+jint JNI_OnLoad(JavaVM *, void *); //注册函数
 
-jint custOpenDexFile(JNIEnv*, jobject, jbyteArray, jint);
+int initLoad(JNIEnv *);
+
+jobject custOpenDexFile(JNIEnv*, jclass, jobject, jbyteArray, jint);
+
+int dexLoadDvm(JNIEnv *, char *, int);
+
+jobject dexLoadArt(JNIEnv*, jobject, char *, int);
 
 int lookup(JNINativeMethod *, const char *, const char *, void (**)(const u4*, union JValue*));
 
 void gotOpenDexFile();
-
-
 
 #endif //HIDEX_HACK_HIDEX_LOAD_LIB_H
