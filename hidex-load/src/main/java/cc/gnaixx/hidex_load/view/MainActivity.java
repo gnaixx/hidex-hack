@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.TextView;
 
 import cc.gnaixx.hidex_libs.inter.Entrance;
 import cc.gnaixx.hidex_load.R;
@@ -15,10 +16,14 @@ import static cc.gnaixx.hidex_load.tool.FileTool.readAssets;
 
 public class MainActivity extends AppCompatActivity {
 
+    private TextView tvMsg;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        tvMsg = (TextView) findViewById(R.id.msg);
 
         byte[] dexBytes = readAssets(this, "samp.dex");
         injectDexClassLoader(dexBytes);
@@ -31,7 +36,9 @@ public class MainActivity extends AppCompatActivity {
         try {
             Class clazz = custLoader.findClass(IMPL_NAME);
             Entrance entrance = (Entrance) clazz.newInstance();
-            Log.i(TAG, entrance.getStaticFields());
+            String msg = entrance.getStaticFields();
+            tvMsg.setText(msg);
+            Log.i(TAG, msg);
         } catch (Exception e) {
             e.printStackTrace();
         }

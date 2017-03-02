@@ -32,7 +32,7 @@ public class RefInvoke {
                 paramStr += "," + paramType[i].getSimpleName();
             }
             paramStr = paramStr.substring(1);
-            Log.e(TAG, "No such method: " + className +"."+methodName + "(" + paramStr+")");
+            //Log.e(TAG, "No such method: " + className +"."+methodName + "(" + paramStr+")");
             //e.printStackTrace();
             return false;
         }
