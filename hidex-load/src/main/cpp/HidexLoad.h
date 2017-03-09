@@ -9,13 +9,24 @@
 #include "HidexLoad.h"
 
 
-#define Gingerbread   10 //2.3
-#define ICS           14 //4.0
-#define JellyBean     18 //4.3
-#define KitKat        19 //4.4
-#define Lollipop_0    21 //5.0
-#define Lollipop_1    22 //5.1
-#define Marshmallow   23 //6.0
+#define ANDROID_2_1   7  //2.1
+#define ANDROID_2_2   8  //2.2
+#define ANDROID_2_3   9  //2.3
+#define ANDROID_2_3_3 10 //2.3.3
+#define ANDROID_3_0   11 //3.0
+#define ANDROID_3_1   12 //3.1
+#define ANDROID_3_2   13 //3.2
+#define ANDROID_4_0   14 //4.0
+#define ANDROID_4_0_3 15 //4.0.3
+#define ANDROID_4_1   16 //4.1
+#define ANDROID_4_2   17 //4.2
+#define ANDROID_4_3   18 //4.3
+#define ANDROID_4_4   19 //4.4
+#define ANDROID_5_0   21 //5.0
+#define ANDROID_5_1   22 //5.1
+#define ANDROID_6_0   23 //6.0
+#define ANDROID_7_0   24 //7.0
+#define ANDROID_7_1   25 //7.1
 
 #define DEX_NAME "hidex-load.dex"
 
@@ -23,9 +34,7 @@ jint JNI_OnLoad(JavaVM *, void *); //注册函数
 
 jobject custOpenDexFile(JNIEnv *, jclass, jobject, jbyteArray, jint);
 
-int initLoad(JNIEnv *);
-
-void initLoadOfPath(JNIEnv *, jobject);
+int initLoad(JNIEnv *, jobject);
 
 jobject dexLoadDvm(JNIEnv *, char *, int);
 

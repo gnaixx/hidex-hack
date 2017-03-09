@@ -27,6 +27,10 @@ jmethodID SystemProperties_get_mID;
 jclass DexFile;
 jmethodID DexFile_openDexFileNative_mID;
 
+jclass  ClassLoader;
+
+jclass DexPathList$Element;
+
 jclass Integer;
 jmethodID Integer_valueOf_mID;
 
@@ -51,17 +55,33 @@ jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     if (env->RegisterNatives(clazz, gMethods, NELEM(gMethods)) != JNI_OK) {
         LOGE("Register natives failed !!!");
     }
-
-    int status = initLoad(env); //初始化工作,获取类应用
-    if(status == FAIL){
-        LOGE("Init load env failed !!!");
-    }
     return JNI_VERSION_1_6;
 }
 
-int initLoad(JNIEnv *env) {
-    LOGI("Start initLoad()");
 
+jobject custOpenDexFile(JNIEnv *env, jclass, jobject ctx, jbyteArray jDexBytes, jint jDexLen) {
+    LOGD("start custOpenDexFile()");
+
+    int status = initLoad(env, ctx); //初始化工作
+    if(status == FAIL){
+        LOGE("Init load env failed !!!");
+    }
+    jobject cookie;
+    jbyte *dexBytes = env->GetByteArrayElements(jDexBytes, NULL);
+    int dexLen = (int) jDexLen;
+    dexDecode((char *) dexBytes, dexLen); //解密dex文件，
+    if(isDalvik){
+        cookie = dexLoadDvm(env, (char *) dexBytes, dexLen);
+    }else{
+        cookie = dexLoadArt(env, ctx, (char *) dexBytes, dexLen);
+    }
+    env->ReleaseByteArrayElements(jDexBytes, dexBytes, 0);
+    remove(dexPath); //删除文件
+    return cookie;
+}
+
+int initLoad(JNIEnv *env, jobject ctx){
+    LOGD("start initLoadOfPath()");
     //Build$VERSION
     if (!dFindClass(env, &BuildVersion, "android/os/Build$VERSION")) {
         return FAIL;
@@ -131,45 +151,25 @@ int initLoad(JNIEnv *env) {
     if (!dFindClass(env, &DexFile, "dalvik/system/DexFile")) {
         return FAIL;
     }
-    if(sdkVersion <= Gingerbread){
+    if(sdkVersion <= ANDROID_2_3_3){
         //2.3以下系统 int openDexFileNative(String sourceName, String outputName, int flags);
         DexFile_openDexFileNative_mID = env->GetStaticMethodID(DexFile, "openDexFile", "(Ljava/lang/String;Ljava/lang/String;I)I");
-    }else if(sdkVersion >= Lollipop_0 && sdkVersion <= Lollipop_1){
-        //5.0-5.1系统 long openDexFileNative(String sourceName, String outputName, int flags);
-        DexFile_openDexFileNative_mID = env->GetStaticMethodID(DexFile, "openDexFile", "(Ljava/lang/String;Ljava/lang/String;I)J");
-    }else if(sdkVersion >= Marshmallow){
-        //6.0以上系统 Object openDexFileNative(String sourceName, String outputName, int flags);
-        DexFile_openDexFileNative_mID = env->GetStaticMethodID(DexFile, "openDexFile", "(Ljava/lang/String;Ljava/lang/String;I)Ljava/lang/Object;");
-    }else{
+    }else if(sdkVersion > ANDROID_3_2 && sdkVersion <= ANDROID_4_4){
         //4.0-4.4系统 存在 int openDexFile(byte[], int);
         //art模式只有int openDexFile(String, String, int);
         if(isDalvik == 0){
             DexFile_openDexFileNative_mID = env->GetStaticMethodID(DexFile, "openDexFile", "(Ljava/lang/String;Ljava/lang/String;I)I");
         }
+    } else if(sdkVersion > ANDROID_4_4 && sdkVersion <= ANDROID_5_1){
+        //5.0-5.1系统 long openDexFileNative(String sourceName, String outputName, int flags);
+        DexFile_openDexFileNative_mID = env->GetStaticMethodID(DexFile, "openDexFile", "(Ljava/lang/String;Ljava/lang/String;I)J");
+    }else if(sdkVersion >= ANDROID_5_1 && sdkVersion<= ANDROID_6_0){
+        //6.0系统 Object openDexFileNative(String sourceName, String outputName, int flags);
+        DexFile_openDexFileNative_mID = env->GetStaticMethodID(DexFile, "openDexFile", "(Ljava/lang/String;Ljava/lang/String;I)Ljava/lang/Object;");
+    }else if(sdkVersion > ANDROID_6_0){
+        //7.0系统
     }
-    return SUCC;
-}
 
-jobject custOpenDexFile(JNIEnv *env, jclass, jobject ctx, jbyteArray jDexBytes, jint jDexLen) {
-    LOGD("start custOpenDexFile()");
-
-    initLoadOfPath(env, ctx); //获取路径
-    jobject cookie;
-    jbyte *dexBytes = env->GetByteArrayElements(jDexBytes, NULL);
-    int dexLen = (int) jDexLen;
-    dexDecode((char *) dexBytes, dexLen); //解密dex文件，
-    if(isDalvik){
-        cookie = dexLoadDvm(env, (char *) dexBytes, dexLen);
-    }else{
-        cookie = dexLoadArt(env, ctx, (char *) dexBytes, dexLen);
-    }
-    env->ReleaseByteArrayElements(jDexBytes, dexBytes, 0);
-    remove(dexPath); //删除文件
-    return cookie;
-}
-
-void initLoadOfPath(JNIEnv *env, jobject ctx){
-    LOGD("start initLoadOfPath()");
     //获取getFilesDir路径
     jclass Context = env->GetObjectClass(ctx);
     jmethodID getFilesDir_mID = env->GetMethodID(Context, "getFilesDir", "()Ljava/io/File;");
@@ -179,12 +179,14 @@ void initLoadOfPath(JNIEnv *env, jobject ctx){
     jstring jAbsolutePath = (jstring) env->CallObjectMethod(fileObj, File_getAbsolutePath_mID);
     g_filePath = jstringToChar(env, jAbsolutePath);
     LOGD("global files path: %s", g_filePath);
+
+    return SUCC;
 }
 
 jobject dexLoadDvm(JNIEnv *env, char * dexBytes, int dexLen){
     LOGD("start dexLoadDvm()");
-
-    if(sdkVersion <= Gingerbread){ //2.3以下系统
+    //dvm 2.1 - 4.4
+    if(sdkVersion <= ANDROID_2_3_3){ //2.3以下系统
         writeDex(dexBytes, dexLen);
         jstring jdexPath = env->NewStringUTF(dexPath);
         jlong cookieOfInt = env->CallStaticLongMethod(DexFile, DexFile_openDexFileNative_mID, jdexPath, 0, 0);
@@ -217,18 +219,26 @@ jobject dexLoadDvm(JNIEnv *env, char * dexBytes, int dexLen){
     }
 }
 
-jobject dexLoadArt(JNIEnv *env, jobject ctx, char* dexBytes, int dexLen){
+jobject dexLoadArt(JNIEnv *env, jobject ctx, char *dexBytes, int dexLen) {
     LOGI("Start dexLoadArt()");
-
+    //art 从4.4开始
     writeDex(dexBytes, dexLen);
     jstring jdexPath = env->NewStringUTF(dexPath);
 
     jobject cookie;
-    if(sdkVersion < Marshmallow){
+    if(sdkVersion <= ANDROID_4_4){
+        //4.4系统 int openDexFile(String, String, int);
+        jint cookieOfInt = env->CallStaticIntMethod(DexFile, DexFile_openDexFileNative_mID, jdexPath, NULL, NULL);
+        cookie = env->CallStaticObjectMethod(Integer, Integer_valueOf_mID, cookieOfInt);
+    } else if(sdkVersion > ANDROID_4_4 && sdkVersion <= ANDROID_5_1){
+        //5.0-5.1系统 long openDexFile(String, String, int);
         jlong cookieOfLong = env->CallStaticLongMethod(DexFile, DexFile_openDexFileNative_mID, jdexPath, 0, 0);
         cookie = env->CallStaticObjectMethod(Long, Long_valueOf_mID, cookieOfLong);
-    }else{
-        cookie = env->CallStaticObjectMethod(DexFile, DexFile_openDexFileNative_mID, jdexPath, 0, 0);
+    } else if(sdkVersion > ANDROID_5_1 && sdkVersion <= ANDROID_6_0){
+        //6.0系统 Object openDexFile(String, String, int);
+        cookie = env->CallStaticObjectMethod(DexFile, DexFile_openDexFileNative_mID, jdexPath, NULL, NULL);
+    } else if(sdkVersion > ANDROID_6_0){
+        //7.0以上系统 Object openDexFile(String, String, int, ClassLoader, DexPathList.Element[]);
     }
     return cookie;
 }
@@ -268,8 +278,7 @@ void writeDex(char *dexBytes, int dexLen){
     LOGI("Start writeDex()");
 
     sprintf(dexPath, "%s/%s", g_filePath, DEX_NAME);
-    FILE *fp;
-    fp = fopen(dexPath, "w");
+    FILE *fp = fopen(dexPath, "w");
     fwrite(dexBytes, dexLen, 1, fp);
     fclose(fp);
     LOGD("Write dex file success");
