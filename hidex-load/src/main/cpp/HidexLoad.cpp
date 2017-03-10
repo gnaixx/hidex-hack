@@ -18,6 +18,13 @@ char dexPath[256];
 
 jclass BuildVersion;
 
+jclass Context;
+jmethodID Context_getFilesDir_mID;
+jmethodID Context_getClassLoader_mID;
+
+jclass File;
+jmethodID File_getAbsolutePath_mID;
+
 jclass System;
 jmethodID System_getProperty_mID;
 
@@ -28,7 +35,6 @@ jclass DexFile;
 jmethodID DexFile_openDexFileNative_mID;
 
 jclass  ClassLoader;
-
 jclass DexPathList$Element;
 
 jclass Integer;
@@ -113,6 +119,16 @@ int initLoad(JNIEnv *env, jobject ctx){
     }
     System_getProperty_mID = env->GetStaticMethodID(System, "getProperty", "(Ljava/lang/String;)Ljava/lang/String;");
 
+    //ClassLoader
+    if(!dFindClass(env, &ClassLoader, "java/lang/ClassLoader")){
+        return FAIL;
+    }
+
+    //DexPathList.Element
+    if(!dFindClass(env, &DexPathList$Element, "dalvik/system/DexPathList$Element")){
+        return FAIL;
+    }
+
     //获取 vm 类型
     jstring vmNameKey = env->NewStringUTF("java.vm.name");
     jstring jvmName = (jstring) env->CallStaticObjectMethod(System, System_getProperty_mID, vmNameKey);
@@ -167,15 +183,16 @@ int initLoad(JNIEnv *env, jobject ctx){
         //6.0系统 Object openDexFileNative(String sourceName, String outputName, int flags);
         DexFile_openDexFileNative_mID = env->GetStaticMethodID(DexFile, "openDexFile", "(Ljava/lang/String;Ljava/lang/String;I)Ljava/lang/Object;");
     }else if(sdkVersion > ANDROID_6_0){
-        //7.0系统
+        //7.0系统 Object openDexFileNative(String sourceName, String outputName, int flags, ClassLoader loader, DexPathList.Element[] elements);
+        DexFile_openDexFileNative_mID = env->GetStaticMethodID(DexFile, "openDexFile", "(Ljava/lang/String;Ljava/lang/String;ILjava/lang/ClassLoader;dalvik/system/DexPathList$Element;)Ljava/lang/Object;");
     }
 
     //获取getFilesDir路径
-    jclass Context = env->GetObjectClass(ctx);
-    jmethodID getFilesDir_mID = env->GetMethodID(Context, "getFilesDir", "()Ljava/io/File;");
-    jobject fileObj = env->CallObjectMethod(ctx, getFilesDir_mID); //获取/data/data/packageName/files
-    jclass File = env->GetObjectClass(fileObj);
-    jmethodID File_getAbsolutePath_mID = env->GetMethodID(File, "getAbsolutePath", "()Ljava/lang/String;");
+    Context = env->GetObjectClass(ctx);
+    Context_getFilesDir_mID = env->GetMethodID(Context, "getFilesDir", "()Ljava/io/File;");
+    jobject fileObj = env->CallObjectMethod(ctx, Context_getFilesDir_mID); //获取/data/data/packageName/files
+    File = env->GetObjectClass(fileObj);
+    File_getAbsolutePath_mID = env->GetMethodID(File, "getAbsolutePath", "()Ljava/lang/String;");
     jstring jAbsolutePath = (jstring) env->CallObjectMethod(fileObj, File_getAbsolutePath_mID);
     g_filePath = jstringToChar(env, jAbsolutePath);
     LOGD("global files path: %s", g_filePath);
@@ -225,20 +242,24 @@ jobject dexLoadArt(JNIEnv *env, jobject ctx, char *dexBytes, int dexLen) {
     writeDex(dexBytes, dexLen);
     jstring jdexPath = env->NewStringUTF(dexPath);
 
-    jobject cookie;
+    jobject cookie = NULL;
     if(sdkVersion <= ANDROID_4_4){
         //4.4系统 int openDexFile(String, String, int);
-        jint cookieOfInt = env->CallStaticIntMethod(DexFile, DexFile_openDexFileNative_mID, jdexPath, NULL, NULL);
+        jint cookieOfInt = env->CallStaticIntMethod(DexFile, DexFile_openDexFileNative_mID, jdexPath, NULL, 0);
         cookie = env->CallStaticObjectMethod(Integer, Integer_valueOf_mID, cookieOfInt);
     } else if(sdkVersion > ANDROID_4_4 && sdkVersion <= ANDROID_5_1){
         //5.0-5.1系统 long openDexFile(String, String, int);
-        jlong cookieOfLong = env->CallStaticLongMethod(DexFile, DexFile_openDexFileNative_mID, jdexPath, 0, 0);
+        jlong cookieOfLong = env->CallStaticLongMethod(DexFile, DexFile_openDexFileNative_mID, jdexPath, NULL, 0);
         cookie = env->CallStaticObjectMethod(Long, Long_valueOf_mID, cookieOfLong);
     } else if(sdkVersion > ANDROID_5_1 && sdkVersion <= ANDROID_6_0){
         //6.0系统 Object openDexFile(String, String, int);
-        cookie = env->CallStaticObjectMethod(DexFile, DexFile_openDexFileNative_mID, jdexPath, NULL, NULL);
+        cookie = env->CallStaticObjectMethod(DexFile, DexFile_openDexFileNative_mID, jdexPath, NULL, 0);
     } else if(sdkVersion > ANDROID_6_0){
         //7.0以上系统 Object openDexFile(String, String, int, ClassLoader, DexPathList.Element[]);
+        Context = env->GetObjectClass(ctx);
+        Context_getClassLoader_mID = env->GetMethodID(Context, "getClassLoader", "()Ljava/lang/ClassLoader;");
+        jobject loaderObj = env->CallObjectMethod(ctx, Context_getClassLoader_mID);
+        cookie = env->CallStaticObjectMethod(DexFile, DexFile_openDexFileNative_mID, jdexPath, NULL, 0, loaderObj, 0);
     }
     return cookie;
 }
