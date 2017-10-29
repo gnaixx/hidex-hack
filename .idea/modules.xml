@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/HidexHack.iml" filepath="$PROJECT_DIR$/HidexHack.iml" />
       <module fileurl="file://$PROJECT_DIR$/hidex-demo/hidex-demo.iml" filepath="$PROJECT_DIR$/hidex-demo/hidex-demo.iml" />
-      <module fileurl="file://$PROJECT_DIR$/hidex-hack.iml" filepath="$PROJECT_DIR$/hidex-hack.iml" />
       <module fileurl="file://$PROJECT_DIR$/hidex-libs/hidex-libs.iml" filepath="$PROJECT_DIR$/hidex-libs/hidex-libs.iml" />
       <module fileurl="file://$PROJECT_DIR$/hidex-load/hidex-load.iml" filepath="$PROJECT_DIR$/hidex-load/hidex-load.iml" />
       <module fileurl="file://$PROJECT_DIR$/hidex-samp/hidex-samp.iml" filepath="$PROJECT_DIR$/hidex-samp/hidex-samp.iml" />
